@@ -46,7 +46,7 @@ class Switch(object):
         # defaults for now, building methods
         self._cli = ''
         self._ip = ''
-        self._user, self._pass = 'admin', 'cisco'
+        self._user, self._pass = 'admin', 'arista'
         self._cliCall = ''
         self._response = []
 
