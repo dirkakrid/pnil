@@ -9,6 +9,7 @@ import pprint
 
 #----------------------------------------------------------------
 
+
 def getIntfList(status_info):
     rtrList = []
     for key, value in status_info.items():
@@ -42,10 +43,12 @@ def getConnectedIntf(_status):
 
 #----------------------------------------------------------------
 
+
 def printList(lStatus):
     print'#--Interface--#\t\t#--Status--#\t\t#--Description--#'
     for value in lStatus:
         print value
+
 
 #----------------------------------------------------------------
 

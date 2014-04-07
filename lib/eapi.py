@@ -26,6 +26,7 @@ import argparse
 
 IMPLEMENTED_METHODS = {'intfStatus': 'show interfaces status'}
 
+
 # function to check for correct IP Address Input
 # this function can later be part of  a larger check_input.py or similar
 def checkIP(ipAddress):
@@ -55,8 +56,7 @@ class Switch(object):
     def _initArgs(self):
         parser = argparse.ArgumentParser(description='\
             input -f [function] -i [ipAddress] \
-            -u [username] -p [password]'\
-            )
+            -u [username] -p [password]')
 
         parser.add_argument('-f', '--function', help='i.e. -f IntfStatus, show version')
         parser.add_argument('-c', '--cli', help='i.e. same as -f, for redundancy')
@@ -103,16 +103,14 @@ class arista(Switch):
 
         self._initArgs()
 
-
     # function returns a dictionary of the interfaces and their status
     def intfStatus(self):
         switch = Server('https://%s:%s@%s/command-api' %
-                  (self._user, self._pass, self._ip))
+                        (self._user, self._pass, self._ip))
         self._response = switch.runCmds(1, [IMPLEMENTED_METHODS[self._cli_call]])
 
         self._intfStatus = self._response[0]['interfaceStatuses']
         return self._intfStatus
-
 
     # decides which method to run based on self._cli
     # methods can also be called directly, but this simplifies it to the "caller"
@@ -123,8 +121,9 @@ class arista(Switch):
         otherwise terminates with mothod not implemented.
         '''
 
-        if self._cli not in IMPLEMENTED_METHODS.keys() and \
-        self._cli not in IMPLEMENTED_METHODS.values():
+        if self._cli not in IMPLEMENTED_METHODS.keys() and\
+                self._cli not in IMPLEMENTED_METHODS.values():
+
             print 'only methods available now are:'
             for _key, _value in IMPLEMENTED_METHODS.items():
                 print "\t%s: %s" % (_key, _value)
@@ -132,10 +131,11 @@ class arista(Switch):
 
         elif self._cli in IMPLEMENTED_METHODS.keys():
             self._cli_call = self._cli
-            return  getattr(self, self._cli_call)() #getattr uses a string and passes as function call
+            # getattr uses a string and passes as function call
+            return getattr(self, self._cli_call)()
         else:
             # finds a key from a given dictionary value
-            r_key = [key for key, value in IMPLEMENTED_METHODS.iteritems() \
-                        if value == IMPLEMENTED_METHODS[key]]
+            r_key = [key for key, value in IMPLEMENTED_METHODS.iteritems()
+                     if value == IMPLEMENTED_METHODS[key]]
             self._cli_call = r_key[0]
             return getattr(self, self._cli_call)()
