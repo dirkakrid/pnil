@@ -4,7 +4,7 @@
 
 #----------------------------------------------------------------
 
-from eapiLib.lib.eapi import arista
+from eapiLib.lib.netControl import netDevice
 import pprint
 
 #----------------------------------------------------------------
@@ -45,9 +45,9 @@ def getConnectedIntf(_status):
 
 
 def printList(lStatus):
-    print'#--Interface--#\t\t#--Status--#\t\t#--Description--#'
+    print ('#--Interface--#\t\t#--Status--#\t\t#--Description--#')
     for value in lStatus:
-        print value
+        print (value)
 
 
 #----------------------------------------------------------------
@@ -56,12 +56,10 @@ def printList(lStatus):
 def main():
     '''Ran only if program called by itself'''
     switch = arista()
-    status = switch.runCmd()
-    # printList(getDisabledIntf(status))
-    # print '\n'
-    # printList(getConnectedIntf(status))
-    pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(status)
+    status = switch.getCMD()
+    printList(getDisabledIntf(status))
+    print ('\n')
+    printList(getConnectedIntf(status))
 
 
 if __name__ == '__main__':

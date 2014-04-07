@@ -2,3 +2,5 @@
 *.pyc
 *.DS_Store
 *.swap
+*.pyo
+*__pycache__
