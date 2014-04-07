@@ -33,24 +33,25 @@ def checkIP(ipAddress):
     lip = ipAddress.split('.')
     if int(lip[0]) <= 0 or int(lip[0]) > 223:
         raise ValueError('Invalid IP')
-    
-    return ipAddress      
+
+    return ipAddress
 
 
 class Switch(object):
     """
-        Parent class switch, which other classes will inherit from, 
+        Parent class switch, which other classes will inherit from,
         ie. arista, cisco, juniper and so on
     """
     def __init__(self):
+        super(Switch, self).__init__()
         # defaults for now, building methods
         self._cli = ''
         self._ip = ''
         self._user, self._pass = 'admin', 'arista'
-        self._cliCall = ''
+        self._cli_call = ''
         self._response = []
 
-    # initialize command line arguments 
+    # initialize command line arguments
     def _initArgs(self):
         parser = argparse.ArgumentParser(description='\
             input -f [function] -i [ipAddress] \
@@ -92,14 +93,14 @@ class Switch(object):
 
     def intfStatus(self):
         pass
-            
+
 
 class arista(Switch):
     """docstring for arista"""
     def __init__(self):
         super(arista, self).__init__()
         self._intfStatus = {}
-        
+
         self._initArgs()
 
 
@@ -107,7 +108,7 @@ class arista(Switch):
     def intfStatus(self):
         switch = Server('https://%s:%s@%s/command-api' %
                   (self._user, self._pass, self._ip))
-        self._response = switch.runCmds(1, [IMPLEMENTED_METHODS[self._cliCall]])
+        self._response = switch.runCmds(1, [IMPLEMENTED_METHODS[self._cli_call]])
 
         self._intfStatus = self._response[0]['interfaceStatuses']
         return self._intfStatus
@@ -117,7 +118,7 @@ class arista(Switch):
     # methods can also be called directly, but this simplifies it to the "caller"
     # by only needing to know one function or the cli command to to call.
     def runCmd(self):
-        ''' 
+        '''
         Checks IMPLEMENTED_METHODS constant and tests if library has called method.
         otherwise terminates with mothod not implemented.
         '''
@@ -125,16 +126,16 @@ class arista(Switch):
         if self._cli not in IMPLEMENTED_METHODS.keys() and \
         self._cli not in IMPLEMENTED_METHODS.values():
             print 'only methods available now are:'
-            for k, v in IMPLEMENTED_METHODS.items():
-                print "\t%s: %s" % (k, v)
+            for _key, _value in IMPLEMENTED_METHODS.items():
+                print "\t%s: %s" % (_key, _value)
             raise ValueError('Method not yet implemented')
 
         elif self._cli in IMPLEMENTED_METHODS.keys():
-            self._cliCall = self._cli
-            return  getattr(self, self._cliCall)() #getattr uses a string and passes as function call
+            self._cli_call = self._cli
+            return  getattr(self, self._cli_call)() #getattr uses a string and passes as function call
         else:
             # finds a key from a given dictionary value
-            rKey = [key for key, value in IMPLEMENTED_METHODS.iteritems() \
+            r_key = [key for key, value in IMPLEMENTED_METHODS.iteritems() \
                         if value == IMPLEMENTED_METHODS[key]]
-            self._cliCall = rKey[0]
-            return getattr(self, self._cliCall)()
+            self._cli_call = r_key[0]
+            return getattr(self, self._cli_call)()

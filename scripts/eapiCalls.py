@@ -4,11 +4,12 @@
 
 #----------------------------------------------------------------
 
-from eapiLib.lib.eapiLib import arista
+from eapiLib.lib.eapi import arista
+import pprint
 
 #----------------------------------------------------------------
 
-def returnIntfList(status_info):
+def getIntfList(status_info):
     rtrList = []
     for key, value in status_info.items():
         rtrList.append(' {0}\t\t{1}    \t\t{2}'.format(key, value[0], value[1]))
@@ -25,7 +26,7 @@ def getDisabledIntf(_status):
         if int_status['linkStatus'] == 'disabled':
             status_info.update({int_key: [int_status['linkStatus'], int_status['description']]})
 
-    return returnIntfList(status_info)
+    return getIntfList(status_info)
 
 
 def getConnectedIntf(_status):
@@ -37,7 +38,7 @@ def getConnectedIntf(_status):
         if int_status['linkStatus'] == 'connected':
             status_info.update({int_key: [int_status['linkStatus'], int_status['description']]})
 
-    return returnIntfList(status_info)
+    return getIntfList(status_info)
 
 #----------------------------------------------------------------
 
@@ -50,13 +51,15 @@ def printList(lStatus):
 
 
 def main():
-    '''Run only if program called by itself'''
+    '''Ran only if program called by itself'''
     switch = arista()
     status = switch.runCmd()
-    printList(getDisabledIntf(status))
-    print '\n'
-    printList(getConnectedIntf(status))
- 
- 
+    # printList(getDisabledIntf(status))
+    # print '\n'
+    # printList(getConnectedIntf(status))
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(status)
+
+
 if __name__ == '__main__':
     main()
