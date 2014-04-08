@@ -10,7 +10,7 @@ import pprint
 #----------------------------------------------------------------
 
 
-def getDisabledIntf(_status):
+def showDisabledIntf(_status):
     '''
       Sample code displays only the status if the interface is 'disabled'
     '''
@@ -22,7 +22,7 @@ def getDisabledIntf(_status):
     return status_info
 
 
-def getConnectedIntf(_status):
+def showConnectedIntf(_status):
     '''
       Sample code displays only the status if the interface is 'disabled'
     '''
@@ -36,7 +36,7 @@ def getConnectedIntf(_status):
 #----------------------------------------------------------------
 
 
-def printList(l_status):
+def printResult(l_status):
     rtr_type = type(l_status)
     if rtr_type is dict or rtr_type is list:
         pp = pprint.PrettyPrinter(indent=4)
@@ -59,9 +59,10 @@ def main():
     result = switch.run()
 
     if result:
-        printList(getDisabledIntf(result))
-        print ('\n')
-        printList(getConnectedIntf(result))
+        # printResult(showDisabledIntf(result))
+        # print ('\n')
+        # printResult(showConnectedIntf(result))
+        printResult(result)
 
 
 if __name__ == '__main__':
