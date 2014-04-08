@@ -3,7 +3,6 @@
 
 from pnil.utils.utils import initArgs
 from pnil.lib.eapi import eapi
-import pprint
 
 class netDevice(object):
     """
