@@ -27,18 +27,59 @@ class eapi(object):
     """docstring for arista"""
     def __init__(self):
         super(eapi, self).__init__()
-        self._api_call = None
         self._host = None
         self._user, self._pass = 'admin', 'arista'
         self._switch = None
         self._version_info = None
+        self._connected = False
+
+    # ----------------------------------------------------------------
+    # "Private / Protected" Methods
+    # ----------------------------------------------------------------
 
     def _connectToSwitch(self):
         if self._host:
-            switch = Server('https://{0}:{1}@{2}/command-api'.format(self._user, self._pass, self._host))
-            return switch
+            return Server('https://{0}:{1}@{2}/command-api'.format(self._user, self._pass, self._host))
         else:
             raise ValueError('IP address not set or invalid')
+
+    # run CMD
+    def _runCmd(self, cli):
+        if self._connected:
+            result = self._switch.runCmds(1, [cli])
+            self._connected = True
+            return result
+        else:
+            self.connect()
+            return self._switch.runCmds(1, [cli])
+
+    # run non JSON CMD
+    def _runCmdText(self, cli):
+        if self._connected:
+            result = self._switch.runCmds(1, [cli], 'text')
+            self._connected = True
+            return result
+        else:
+            self.connect()
+            return self._switch.runCmds(1, [cli], 'text')
+
+    def _versionList(self):
+        '''
+            Gets version and converts to a list of Ivalues
+            this allows comparisons between software versions
+            by calling int(on an index)
+        '''
+
+        # checks if self._version_info is not empy
+        if not self._version_info:
+            self.getVersionInfo()
+
+        version_list = self._version_info[0]['version'].split('.')
+        return version_list
+
+    # ----------------------------------------------------------------
+    # Public / Unprotected Methods
+    # ----------------------------------------------------------------
 
     # creates connection to switch
     def connect(self):
@@ -55,21 +96,8 @@ class eapi(object):
         self._host = host
         self._user, self._pass = username, password
 
-    # run CMD
-    def _runCmd(self, cli):
-        if self._switch:
-            return self._switch.runCmds(1, [cli])
-        else:
-            self.connect()
-            return self._switch.runCmds(1, [cli])
-
-    # run non JSON CMD
-    def _runCmdText(self, cli):
-        if self._switch:
-            return self._switch.runCmds(1, [cli], 'text')
-        else:
-            self.connect()
-            return self._switch.runCmds(1, [cli], 'text')
+    def getHost(self):
+        return self._host
 
     # getVersionInfo created to streamline the calling of "show version"
     # there was allot of code that repeated it, this way, only one call is needed
@@ -80,16 +108,7 @@ class eapi(object):
         self._version_info = self._runCmd('show version')
         return self._version_info
 
-    def _versionList(self):
-        '''
-            Gets version and converts to a list of Ivalues
-            this allows comparisons between software versions
-            by calling int(on an index)
-        '''
-        version_list = self._version_info[0]['version'].split('.')
-        return version_list
-
-    def showVersion(self):
+    def getVersion(self):
         ''' Returns the device running code version as a string '''
 
         # checks if self._version_info is not empy
@@ -99,18 +118,18 @@ class eapi(object):
         return self._version_info[0]['version']
 
     # function returns a dictionary of the interfaces and their status
-    def showIntfStatus(self):
+    def getIntfStatus(self):
         response = self._runCmd('show interfaces status')
 
         return response[0]['interfaceStatuses']
 
-    def showPlatform(self):
+    def getPlatform(self):
         if not self._version_info:
             self.getVersionInfo()
 
         return self._version_info[0]["modelName"]
 
-    def showSerialNumber(self):
+    def getSerialNumber(self):
 
         if not self._version_info:
             self.getVersionInfo()
@@ -121,13 +140,13 @@ class eapi(object):
             return self._version_info[0]["serialNumber"]
 
     def getUptime(self):
-        output = self._switch.runCmds(1, ["show uptime"], "text")
+        output = self._runCmdText('show uptime')
         c = output[0]['output']
         up_time = c[13:].split(',')[0]
         return up_time
 
     def getCPU(self):
-        output = self._switch.runCmds(1, ['show processes top once'], 'text')
+        output = self._runCmdText('show processes top once')
         # cpu = index 0 of returned list  split by new-lines
         # grabs the 3rd line which contains Cpu values at index [2]
         cpu_line = output[0]['output'].split('\n')[2]
@@ -142,8 +161,9 @@ class eapi(object):
         version_int = self._versionList()
 
         if int(version_int[0]) >= 4 and int(version_int[1]) >= 13:
-            output = self._runCmd("show hostname")
+            output = self._runCmd('show hostname')
             hostname = output[0]['hostname']
+            return hostname
         else:
             # begins a breakdown of finding the hostname inside a string
             # could probably be more efficient, but works for now
@@ -163,8 +183,6 @@ class eapi(object):
             # indexing removes the " from the begining of the hostname
             return hostname[2:]
 
-        return hostname
-
     def getFQDN(self):
         '''
             Returns the device's FQDN hostname.domain.suffix
@@ -177,7 +195,7 @@ class eapi(object):
         if int(version_int[0]) >= 4 and int(version_int[1]) >= 13:
             output = self._runCmd("show hostname")
             hostname = output[0]['fqdn']
-
+            return hostname
         else:
             # begins a breakdown of finding the hostname inside a string
             # could probably be more efficient, but works for now
@@ -193,10 +211,7 @@ class eapi(object):
             # indexing removes the quotes (") from the begining and end of the hostname
             return hostname[2:-1]
 
-        return hostname
-
-    def getfreeMemory(self):
-        # output = self._runCmd()('show version')
+    def getFreeMem(self):
 
         # checks if self._version_info is not empy
         if not self._version_info:
@@ -204,8 +219,7 @@ class eapi(object):
 
         return self._version_info[0]['memFree']
 
-    def gettotalMemory(self):
-        # output = self._runCmd()('show version')
+    def getTotalMem(self):
 
         # checks if self._version_info is not empy
         if not self._version_info:
@@ -213,28 +227,25 @@ class eapi(object):
 
         return self._version_info[0]['memTotal']
 
-    def getFacts(self):
+    def getDetails(self):
 
         # moved getVersionInfo() so this information gets refreshed as well
         # and to remove the redundancy of __init__
         self.getVersionInfo()
 
-        sh_ver = self.showVersion()
-        # sh_lldp_localinfo = self._switch.runCmds( 1, ["show lldp local-info"],"text")
+        sh_ver = self.getVersion()
         cpu_utilization = self.getCPU()
-        free_memory = self.getfreeMemory()
-        total_memory = self.gettotalMemory()
+        free_memory = self.getFreeMem()
+        total_memory = self.getTotalMem()
         uptime = self.getUptime()
-        platform = self.showPlatform()
-        serial_number = self.getserialNumber()
-        connect_ip = self._host
+        platform = self.getPlatform()
+        serial_number = self.getSerialNumber()
+        connect_ip = self.getHost()
         hostname = self.getHostname()
 
-        #var_name = self.obj
-
-        facts = {'hostname': hostname, 'connect_ip': connect_ip, 'platform': platform,
+        details = {'hostname': hostname, 'connect_ip': connect_ip, 'platform': platform,
                       'version': sh_ver, 'serial_number': serial_number, 'system_uptime': uptime,
                       'cpu_utilization': cpu_utilization, 'free_system_memory': free_memory,
                       'total_sytem_memory': total_memory, 'vendor': 'arista'}
 
-        return facts
+        return details

@@ -38,30 +38,54 @@ def showConnectedIntf(_status):
 
 def printResult(l_status):
     rtr_type = type(l_status)
-    if rtr_type is dict or rtr_type is list:
+    if rtr_type is list:
         pp = pprint.PrettyPrinter(indent=4)
         pp.pprint(l_status)
+    elif rtr_type is dict:
+        for key, value in l_status.items():
+            if len(key) > 13:
+                print ('{0}: \t{1}'.format(key, value))
+            else:
+                print ('{0}: \t\t{1}'.format(key, value))
     else:
         print (l_status)
 
 
-#----------------------------------------------------------------
+# ----------------------------------------------------------------
 
 
 def main():
     '''Ran only if program called by itself'''
     
-    # args = {'host': 'veos-02', 'manufacturer': 'arista',
-    #     'cli': 'showIntfStatus', 'ip_address': '', 'user': 'arista', 'pass': 'arista'}
+    # args = {'host': 'eos-sw01', 'manufacturer': 'arista',
+    #     'cli': 'getVersionInfo', 'ip_address': '', 'user': 'arista', 'pass': 'arista'}
     # switch = netDevice(args=args)
 
-    switch = netDevice()
+    # switch = netDevice()
+    # result = switch.run()
+
+    # ----------------------------------------------------------------
+    # simulating running from interpretor
+    # ----------------------------------------------------------------
+    args = {
+    'dns_name': 'eos-sw01',
+    'manufacturer': 'arista',
+    'user': 'arista',
+    'pass': 'arista',
+    'cli': 'getDetails'
+    }
+    switch = netDevice(args)
     result = switch.run()
 
-    if result:
-        # printResult(showDisabledIntf(result))
-        # print ('\n')
-        # printResult(showConnectedIntf(result))
+    # ----------------------------------------------------------------
+    # Prints information optained
+    # ----------------------------------------------------------------
+
+    if result and switch.getCmdEntered() == 'getIntfStatus':
+        printResult(showDisabledIntf(result))
+        print ('\n')
+        printResult(showConnectedIntf(result))
+    elif result:
         printResult(result)
 
 

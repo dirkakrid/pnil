@@ -10,40 +10,67 @@ class netDevice(object):
         ie. arista, cisco, juniper and so on
     """
     def __init__(self, args=None):
+        '''
+        Pass a dictionary of values such as:
+            {
+                'ip': [ip_address] or 'dns_name': 'hostname', (at least one mandatory)
+                'manufacturer': 'arista' or 'cisco'..,  (mandatory)
+                'function' or 'cli': [function_to_call], (optional, can be called later with dev.run('function'))
+                'user': 'username', (optional - default set)
+                'pass': 'password', (optional - default set)
+            }
+        '''
         super(netDevice, self).__init__()
         # defaults for now, building methods
         self._args = args if args else initArgs()
-        self._manufacturer = self._args['manufacturer']
-        self._host = self._args['ip_address'] if self._args['ip_address'] else self._args['host']
-        self._api_call = self._args['cli'] if self._args['cli'] else self._args['function']
-        self._user, self._pass = self._args['user'], self._args['pass']
         self._net_device = None
         self._createNetDevice()
+
+    def __dir__(self):
+        funcs = dir(self._net_device)
+        new_dir = []
+        for each in funcs:
+            if not (each.startswith('__') or each.startswith('_')):
+                new_dir.append(each)
+
+        return new_dir
+
+    # ----------------------------------------------------------------
+    # "Private / Protected" Methods
+    # ----------------------------------------------------------------
 
     # creates the device self._net_device
     def _createNetDevice(self):
         if not self._args:
             self._args = initArgs()
 
-        if self._manufacturer:
-            if self._manufacturer.lower() == 'arista' or self._manufacturer.lower() == 'eapi':
+        if self._args['manufacturer']:
+            if self._args['manufacturer'].lower() == 'arista' or \
+                self._args['manufacturer'].lower() == 'eapi':
+
                 self._net_device = eapi()
             else:
                 pass
         else:
-            raise ValueError('Please enter the manufactuer information')
+            raise Exception('Please enter the manufacturer information')
 
     # set devices important variables
     def _initDevice(self):
-        if self._user and self._pass:
-            self._net_device.setLogin(self._user, self._pass)
+        user = self._args['user']
+        password = self._args['pass']
 
-        if self._host:
-            self._net_device.setHost(self._host)
+
+        host = self._args['dns_name'] if self._args['dns_name'] else self._args['ip_address']
+
+        if user and password:
+            self._net_device.setLogin(self._args['user'], self._args['pass'])
+
+        if host:
+            self._net_device.setHost(host)
         else:
-            raise ValueError('You must enter at least a host or ip_addres')
+            raise Exception('You must enter at least a dns_name or ip_address')
 
-    def displayError(self):
+    def _displayError(self):
         print '********************************************************'
         print '***IP Address (-i), manufacturer (-m), AND one of*******'
         print '***the following functions (-f) are required************'
@@ -54,10 +81,24 @@ class netDevice(object):
             if not (each.startswith('__') or each.startswith('_')):
                 print '*** ' + each
 
+    def _getFunction(self, func=None):
+        if not func:
+            for key in self._args.keys():
+                if key == 'cli' and self._args['cli']:
+                    return  self._args['cli']
+                elif key == 'function' and self._args['function']:
+                    return self._args['function']
+        else:
+            return func
+
+    # ----------------------------------------------------------------
+    # Public / Unprotected Methods
+    # ----------------------------------------------------------------
+
     # decides which method to run based on self._api_call
     # methods can also be called directly, but this simplifies it to the "caller"
     # by only needing to know one function or the cli command to to call.
-    def run(self):
+    def run(self, func=None):
         '''
         Checks implemented_methods constant and tests if library has called method.
         otherwise terminates with mothod not implemented.
@@ -67,12 +108,16 @@ class netDevice(object):
         self._initDevice()
 
         implemented_methods = dir(self._net_device)
-        #print implemented_methods
 
-        if not self._api_call:
-            self.displayError()
-        elif self._api_call not in implemented_methods:
-            self.displayError()
+        function = self._getFunction(func)
+
+        if not function:
+            self._displayError()
+        elif function not in implemented_methods:
+            self._displayError()
         else:
             # getattr uses a string and passes as function call
-            return getattr(self._net_device, self._api_call)()
+            return getattr(self._net_device, function)()
+
+    def getCmdEntered(self):
+        return self._getFunction()
