@@ -57,9 +57,11 @@ def main():
 
     switch = netDevice()
     result = switch.run()
-    printList(getDisabledIntf(result))
-    print ('\n')
-    printList(getConnectedIntf(result))
+
+    if result:
+        printList(getDisabledIntf(result))
+        print ('\n')
+        printList(getConnectedIntf(result))
 
 
 if __name__ == '__main__':

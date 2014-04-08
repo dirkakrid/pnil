@@ -44,12 +44,23 @@ class netDevice(object):
         else:
             raise ValueError('You must enter at least a host or ip_addres')
 
-    # decides which method to run based on self._apiCall
+    def displayError(self):
+        print '********************************************************'
+        print '***IP Address (-i), manufacturer (-m), AND one of*******'
+        print '***the following functions (-f) are required************'
+        print "***Use 'python main.py -h' for more info on proper usage"
+        print '********************************************************'
+        funcs = dir(self._net_device)
+        for each in funcs:
+            if not (each.startswith('__') or each.startswith('_')):
+                print '*** ' + each
+
+    # decides which method to run based on self._api_call
     # methods can also be called directly, but this simplifies it to the "caller"
     # by only needing to know one function or the cli command to to call.
     def run(self):
         '''
-        Checks IMPLEMENTED_METHODS constant and tests if library has called method.
+        Checks implemented_methods constant and tests if library has called method.
         otherwise terminates with mothod not implemented.
         '''
 
@@ -60,14 +71,9 @@ class netDevice(object):
         #print implemented_methods
 
         if not self._api_call:
-            raise ValueError('Please enter a function to call')
-
+            self.displayError()
         elif self._api_call not in implemented_methods:
-            pp = pprint.PrettyPrinter(indent=4)
-            print ('Choose from the following methods\n')
-            pp.pprint(implemented_methods)
-            raise ValueError('Error, no method with that name')
-
+            self.displayError()
         else:
             # getattr uses a string and passes as function call
             return getattr(self._net_device, self._api_call)()
