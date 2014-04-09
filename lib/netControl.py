@@ -38,6 +38,10 @@ class netDevice(object):
 
         return new_dir
 
+    def __str__(self):
+        r_str = self._net_device.__str__()
+        return r_str
+
     # ----------------------------------------------------------------
     # "Private / Protected" Methods
     # ----------------------------------------------------------------
@@ -56,7 +60,35 @@ class netDevice(object):
         else:
             raise Exception('Please enter the manufacturer information')
 
-    def _displayError(self):
+    # ----------------------------------------------------------------
+    # Public / Unprotected Methods
+    # ----------------------------------------------------------------
+
+    # decides which method to run based on self._api_call
+    # methods can also be called directly, but this simplifies it to the "caller"
+    # by only needing to know one function or the cli command to to call.
+
+    def initialize(self, host, manufacturer, name='netDevice'):
+        if self._created:
+            self._net_device.initialize(host, name)
+        elif not self._created and manufacturer:
+            self.create(manufacturer)
+            self._net_device.initialize(host, name)
+        else:
+            raise Exception('Must create device first, call create(manufacturer)')
+
+        self._initialized = True
+
+    def setLogin(self, user, password):
+        self._net_device.setLogin(user, password)
+
+    def create(self, manufacturer):
+        if not self._created:
+            return self._createNetDevice(manufacturer)
+        else:
+            return self._net_device
+
+    def displayError(self):
         print '********************************************************'
         print '***IP Address (-i), manufacturer (-m), AND one of*******'
         print '***the following functions (-f) are required************'
@@ -74,47 +106,6 @@ class netDevice(object):
         except Exception, e:
             raise e
 
-    # ----------------------------------------------------------------
-    # Public / Unprotected Methods
-    # ----------------------------------------------------------------
-
-    # decides which method to run based on self._api_call
-    # methods can also be called directly, but this simplifies it to the "caller"
-    # by only needing to know one function or the cli command to to call.
-
-    def initialize(self, host, manufacturer, user=None, password=None):
-        if not self._created:
-            self._createNetDevice(manufacturer)
-
-        if host and user and password:
-            self._net_device.setAll(host, user, password)
-        elif host:
-            self._net_device.setHost(host)
-        else:
-            raise Exception('Enter at least the host to connect to')
-
-        self._initialized = True
-
-    def setLogin(self, user, password):
-        self._net_device.setLogin(user, password)
-
-    def setHost(self, host, manufacturer=None):
-        if self._created:
-            self._net_device.setHost(host)
-        elif not self._created and manufacturer:
-            self.create(manufacturer)
-            self.setHost(host)
-        else:
-            raise Exception('Must create device first, call create(manufacturer)')
-
-        self._initialized = True
-
-    def create(self, manufacturer):
-        if not self._created:
-            return self._createNetDevice(manufacturer)
-        else:
-            return self._net_device
-
     def run(self, func=None):
         '''
         Checks implemented_methods constant and tests if library has called method.
@@ -127,11 +118,12 @@ class netDevice(object):
         implemented_methods = dir(self._net_device)
 
         if not func:
-            self._displayError()
+            self.displayError()
         elif func not in implemented_methods:
-            self._displayError()
+            self.displayError()
         else:
             func_call = self._getFunction(func)
+            self._net_device.setFunction(func_call)
             return getattr(self._net_device, func_call)()
 
     def getCmdEntered(self):

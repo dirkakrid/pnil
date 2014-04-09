@@ -5,7 +5,7 @@
 #----------------------------------------------------------------
 
 from pnil.lib.netControl import netDevice
-from pnil.utils.utils import initArgs
+import argparse
 import pprint
 
 #----------------------------------------------------------------
@@ -54,19 +54,66 @@ def printResult(l_status):
 
 # ----------------------------------------------------------------
 
-def initDevice(args):
-    pass
+def build(args):
+
+    # sets dev_name if -n is used, otherwise generic 'dev' is used
+    name = args['name'] if args['name'] else 'netDevice'
+
+    # create device with ip_address or dns_name and manufacturer info
+    _host = args['ip_address'] if args['ip_address'] else args['dns_name']
+
+    net_dev = netDevice()
+    net_dev.initialize(_host, args['manufacturer'], name)
+
+    # if login information entered, use it, otherwise default
+    if args['username'] and args['password']:
+        net_dev.setLogin(args['username'], args['password'])
+
+    return net_dev
+
+def run(args, dev):
+    # sets the function based on the command-line argument passed -f or -c
+    function = args['function'] if args['function'] else args['cli']
+    if function:
+        value = dev.run(function)
+    else:
+        value = dev.displayError()
+
+    return value
 
 def main():
-    '''Ran only if program called by itself'''
+    '''
+    Ran only if program called as script
+    '''
 
-    switch = netDevice()
-    # switch.initialize('eos-sw01', 'arista')
+    parser = argparse.ArgumentParser(description='\
+        input -f [function] -i [ipAddress] \
+        -u [username] -p [password]')
 
-    switch.setHost('eos-sw01', 'arista')
-    switch.setLogin('arista', 'arista')
+    parser.add_argument('-f', '--function', help='i.e. -f getHostname, getVersion...')
+    parser.add_argument('-c', '--cli', help='i.e. same as -f, for redundancy')
+    parser.add_argument('-i', '--ip_address', help='i.e. -i "192.168.31.21"')
+    parser.add_argument('-d', '--dns_name', help='i.e. -h sw01.domain.com')
+    parser.add_argument('-u', '--username', help='Enter username of device')
+    parser.add_argument('-p', '--password', help='Enter password for username')
+    parser.add_argument('-n', '--name', help='Enter the device\'s name. i.e -n sw1')
+    parser.add_argument('-m', '--manufacturer', help='Enter the manufacturer to run on\
+        i.e => -m arista')
+    args = vars(parser.parse_args())
 
-    result = switch.run('getDetails')
+    _args = {
+        'function': 'getHostname',
+        'dns_name': 'eos-sw01',
+        'manufacturer': 'arista',
+        'name': 'sw1',
+        'cli': None,
+        'ip_address': None,
+        'username': None,
+        'password': None
+    }
+
+    dev = build(_args)
+    result = run(_args, dev)
 
     if result:
         printResult(result)
@@ -78,6 +125,7 @@ def main():
     # pp = pprint.PrettyPrinter(indent=4)
     # pp.pprint(list_dir)
 
+    # prettyfying the printing of dir() call, just testing
     # for i in list_dir:
     #     for key, value in i.items():
     #         for j in range(0, len(value)):

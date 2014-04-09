@@ -28,10 +28,17 @@ class eapi(object):
     def __init__(self):
         super(eapi, self).__init__()
         self._host = None
-        self._user, self._pass = 'admin', 'arista'
+        self._user = 'admin'
+        self._pass = 'arista'
         self._switch = None
+        self._name = None
         self._version_info = None
+        self._function = None
         self._connected = False
+
+    def __str__(self):
+        rtr_str = 'name:\t\t{0}\nhost:\t\t{1}\nfunction:\t{2}'.format(self._name, self._host, self._function)
+        return rtr_str
 
     # ----------------------------------------------------------------
     # "Private / Protected" Methods
@@ -89,12 +96,15 @@ class eapi(object):
     def setLogin(self, username, password):
         self._user, self._pass = username, password
 
-    def setHost(self, host):
+    def initialize(self, host, name):
         self._host = host
+        self._name = name
 
-    def setAll(self, host, username, password):
-        self._host = host
-        self._user, self._pass = username, password
+    def setFunction(self, func):
+        self._function = func
+
+    def getFunction(self):
+        return self._function
 
     def getHost(self):
         return self._host
