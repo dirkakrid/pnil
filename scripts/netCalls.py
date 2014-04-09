@@ -5,6 +5,7 @@
 #----------------------------------------------------------------
 
 from pnil.lib.netControl import netDevice
+from pnil.utils.utils import initArgs
 import pprint
 
 #----------------------------------------------------------------
@@ -53,40 +54,34 @@ def printResult(l_status):
 
 # ----------------------------------------------------------------
 
+def initDevice(args):
+    pass
 
 def main():
     '''Ran only if program called by itself'''
-    
-    # args = {'host': 'eos-sw01', 'manufacturer': 'arista',
-    #     'cli': 'getVersionInfo', 'ip_address': '', 'user': 'arista', 'pass': 'arista'}
-    # switch = netDevice(args=args)
 
-    # switch = netDevice()
-    # result = switch.run()
+    switch = netDevice()
+    # switch.initialize('eos-sw01', 'arista')
 
-    # ----------------------------------------------------------------
-    # simulating running from interpretor
-    # ----------------------------------------------------------------
-    args = {
-    'dns_name': 'eos-sw01',
-    'manufacturer': 'arista',
-    'user': 'arista',
-    'pass': 'arista',
-    'cli': 'getDetails'
-    }
-    switch = netDevice(args)
-    result = switch.run()
+    switch.setHost('eos-sw01', 'arista')
+    switch.setLogin('arista', 'arista')
 
-    # ----------------------------------------------------------------
-    # Prints information optained
-    # ----------------------------------------------------------------
+    result = switch.run('getDetails')
 
-    if result and switch.getCmdEntered() == 'getIntfStatus':
-        printResult(showDisabledIntf(result))
-        print ('\n')
-        printResult(showConnectedIntf(result))
-    elif result:
+    if result:
         printResult(result)
+
+    # Interpreter simulation
+    # sw1 = netDevice()
+    # sw1.initialize('eos-sw01', 'arista')
+    # list_dir = dir(sw1)
+    # pp = pprint.PrettyPrinter(indent=4)
+    # pp.pprint(list_dir)
+
+    # for i in list_dir:
+    #     for key, value in i.items():
+    #         for j in range(0, len(value)):
+    #             print "{0}:\t{1}".format(key, value[j])
 
 
 if __name__ == '__main__':
