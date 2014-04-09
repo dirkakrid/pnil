@@ -71,9 +71,7 @@ def build(args):
 
     return net_dev
 
-def run(args, dev):
-    # sets the function based on the command-line argument passed -f or -c
-    function = args['function'] if args['function'] else args['cli']
+def run(dev, function):
     if function:
         value = dev.run(function)
     else:
@@ -113,7 +111,11 @@ def main():
     }
 
     dev = build(_args)
-    result = run(_args, dev)
+
+    # sets the function based on the command-line argument passed -f or -c
+    function = _args['function'] if _args['function'] else _args['cli']
+
+    result = run(dev, function)
 
     if result:
         printResult(result)
