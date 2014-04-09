@@ -97,18 +97,18 @@ def main():
     parser.add_argument('-n', '--name', help='Enter the device\'s name. i.e -n sw1')
     parser.add_argument('-m', '--manufacturer', help='Enter the manufacturer to run on\
         i.e => -m arista')
-    args = vars(parser.parse_args())
+    _args = vars(parser.parse_args())
 
-    _args = {
-        'function': 'getHostname',
-        'dns_name': 'eos-sw01',
-        'manufacturer': 'arista',
-        'name': 'sw1',
-        'cli': None,
-        'ip_address': None,
-        'username': None,
-        'password': None
-    }
+    # _args = {
+    #     'function': 'getHostname',
+    #     'dns_name': 'eos-sw01',
+    #     'manufacturer': 'arista',
+    #     'name': 'sw1',
+    #     'cli': None,
+    #     'ip_address': None,
+    #     'username': None,
+    #     'password': None
+    # }
 
     dev = build(_args)
 
