@@ -128,7 +128,7 @@ class eapi(object):
         return version
 
     # function returns a dictionary of the interfaces and their status
-    def getIntfDetails(self):
+    def getInterfaceDetails(self):
         response = self._runCmd('show interfaces status')
 
         return response[0]['interfaceStatuses']

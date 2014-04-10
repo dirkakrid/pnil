@@ -62,14 +62,17 @@ def formatSingle(result, func):
 def formatList(result, func):
 
     counter = 0
+    key_counter = 1
     new_result = {}
     for item in result:
         if type(item) is dict:
             for key, value in item.iteritems():
-                # print ('{0}: \t{1}'.format(key, value))
-                new_result.update({key: value})
+                if key in new_result:
+                    new_result.update({key + '_' + str(key_counter): value})
+                    key_counter += 1
+                else:
+                    new_result.update({key: value})
         else:
-            # print("{0}: \t{1}".format(func[counter].lstrip(), item))
             key = func[counter].lstrip().rstrip()
             new_result.update({key: item})
             counter += 1
@@ -163,17 +166,14 @@ def main():
     # testing output as if running from command-line
     # ----------------------------------------------------------------
     sw1 = netDevice()
-    # sw2 = netDevice()
-    sw1.initialize('eos-sw01', 'arista', 'sw1')
-    # sw2.initialize('veos-01', 'arista', 'sw1')
-    function = 'getIntfDetails, getDetails'
-    # function = 'getDetails'
+    sw1.initialize('veos-01', 'arista', 'sw1')
+    function = 'getHostname, getVersion, getPlatform, getCPU, getDetails'
     result = run(sw1, function)
     # result2 = run(sw2, function)
     pp = pprint.PrettyPrinter(indent=2, width=40, depth=None)
-    pp.pprint(formatResult(result, function))
+    # pp.pprint(formatResult(result, function))
     # print('\n\n')
-    # pp.pprint(formatResult(result2, function))
+    pp.pprint(result)
 
 
 if __name__ == '__main__':
