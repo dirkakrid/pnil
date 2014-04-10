@@ -156,8 +156,8 @@ class eapi(object):
             return serial_number
 
     def getUptime(self):
-        output = self._runCmdText('show uptime')
-        c = output[0]['output']
+        output = self._runCmdText('show uptime')[0]['output']
+        print output
         return self._creatDataDict('uptime', c[13:].split(',')[0])
 
     def getCPU(self):
