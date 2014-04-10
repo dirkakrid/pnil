@@ -45,6 +45,6 @@ def getHostname(self):
 
             # indexing removes the " from the begining of the hostname
             return r_hostname
-    ```
+```
 
-    This can probably be cut down to a few lines after the first else: statement by using regex. Maybe with the NLTK library?
+This can probably be cut down to a few lines after the first else: statement by using regex. Maybe with the NLTK library?
