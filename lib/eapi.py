@@ -53,10 +53,10 @@ class eapi(object):
     # run CMD
     def _runCmd(self, cli):
         if self._connected:
-            return self._switch.runCmds(1, [cli])
+            return self._switch.runCmds(1, cli)
         else:
             self.connect()
-            return self._switch.runCmds(1, [cli])
+            return self._switch.runCmds(1, cli)
 
     # run non JSON CMD
     def _runCmdText(self, cli):
@@ -81,7 +81,7 @@ class eapi(object):
         return version_list
 
     @classmethod
-    def _creatDataDict(cls, key, value):
+    def _createDataDict(cls, key, value):
         return {key: value}
 
     # ----------------------------------------------------------------
@@ -90,8 +90,12 @@ class eapi(object):
 
     # creates connection to switch
     def connect(self):
-        self._switch = self._connectToSwitch()
-        return self._switch
+        try:
+            self._switch = self._connectToSwitch()
+            self._connected = True
+            return self._switch
+        except Exception as e:
+            print ('Could not connect, error: {0}'.format(e))
 
     def setLogin(self, username, password):
         self._user, self._pass = username, password
@@ -101,10 +105,10 @@ class eapi(object):
         self._name = name
 
     def getHost(self):
-        return self._creatDataDict('host', self._host)
+        return self._createDataDict('host', self._host)
 
     def getName(self):
-        return self._creatDataDict('name', self._name)
+        return self._createDataDict('name', self._name)
 
     # getVersionInfo created to streamline the calling of "show version"
     # there was allot of code that repeated it, this way, only one call is needed
@@ -113,7 +117,7 @@ class eapi(object):
         ''' returns a 'show version' output as a dictionary '''
 
         # normaly returns list with dictionary.
-        version_info = self._runCmd('show version')
+        version_info = self._runCmd(['show version'])
         self._version_info = version_info[0]
 
         #returns only dict of relevant information
@@ -126,7 +130,7 @@ class eapi(object):
         if not self._version_info:
             self.getVersionInfo()
 
-        return self._creatDataDict('version', self._version_info['version'])
+        return self._createDataDict('version', self._version_info['version'])
 
     # function returns a dictionary of the interfaces and their status
     def getInterfaceDetails(self):
@@ -138,7 +142,7 @@ class eapi(object):
         if not self._version_info:
             self.getVersionInfo()
 
-        return self._creatDataDict('platform', self._version_info['modelName'])
+        return self._createDataDict('platform', self._version_info['modelName'])
 
     def getSerialNumber(self):
 
@@ -147,7 +151,7 @@ class eapi(object):
 
         serial = self._version_info['serialNumber']
 
-        serial_number = self._creatDataDict('serial_number', serial)
+        serial_number = self._createDataDict('serial_number', serial)
 
         if serial_number['serial_number'] == '':
             non_serial = {'serial_number': 'not_found'}
@@ -157,15 +161,14 @@ class eapi(object):
 
     def getUptime(self):
         output = self._runCmdText('show uptime')[0]['output']
-        print output
-        return self._creatDataDict('uptime', c[13:].split(',')[0])
+        uptime = re.search(r"(?<=up\s\s)([\d:]+)", output).group(0)
+        return self._createDataDict('uptime', uptime)
 
     def getCPU(self):
         output = self._runCmdText('show processes top once')[0]
         
-        regex_cpu = re.search(r"\d+\.\d*%(?=us)", output['output'])
-        cpu = regex_cpu.group(0)
-        return self._creatDataDict('cpu_usage', cpu)
+        cpu = re.search(r"\d+\.\d*%(?=us)", output['output']).group(0)
+        return self._createDataDict('cpu_usage', cpu)
 
     def getHostname(self):
         ''' Returns the device's none FQDN hostname '''
@@ -174,13 +177,12 @@ class eapi(object):
 
         if int(version_int[0]) >= 4 and int(version_int[1]) >= 13:
             output = self._runCmd('show hostname')
-            return self._creatDataDict('hostname', output[0]['hostname'])
+            return self._createDataDict('hostname', output[0]['hostname'])
         else:
             output = self._runCmdText('show lldp local-info')[0]
 
-            regex_host = re.search(r"(?<=System Name: \").*?(?=\.)", output['output'])
-            host = regex_host.group(0)
-            return self._creatDataDict('hostname', host)
+            host = re.search(r"(?<=System Name: \").*?(?=\.)", output['output']).group(0)
+            return self._createDataDict('hostname', host)
 
     def getFQDN(self):
         '''
@@ -198,9 +200,12 @@ class eapi(object):
         else:
             output = self._runCmdText('show lldp local-info')[0]
 
-            regex_fqdn = re.search(r"(?<=System Name: \").*?(?=\")", output['output'])
-            fqdn = regex_fqdn.group(0)
-            return self._creatDataDict('fqdn', fqdn)
+            fqdn = re.search(r"(?<=System Name: \").*?(?=\")", output['output']).group(0)
+            return self._createDataDict('fqdn', fqdn)
+
+    def getAAA(self):
+        aaa = self._runCmd(['enable', 'show aaa'])[1]['users']
+        return aaa
 
     def getFreeMem(self):
 
@@ -226,23 +231,13 @@ class eapi(object):
         if not self._version_info:
             self.getVersionInfo()
 
-        return self._creatDataDict('system_mac', self._version_info['systemMacAddress'])
+        return self._createDataDict('system_mac', self._version_info['systemMacAddress'])
 
     def getDetails(self):
 
         # moved getVersionInfo() so this information gets refreshed as well
         # and to remove the redundancy of __init__
         self.getVersionInfo()
-
-        # sh_ver = self.getVersion()
-        # cpu_utilization = self.getCPU()
-        # free_memory = self.getFreeMem()
-        # total_memory = self.getTotalMem()
-        # uptime = self.getUptime()
-        # platform = self.getPlatform()
-        # serial_number = self.getSerialNumber()
-        # connect_ip = self.getHost()
-        # hostname = self.getHostname()
 
         items = (
             self.getVersion(),
