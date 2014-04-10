@@ -167,7 +167,8 @@ def main():
     # ----------------------------------------------------------------
     sw1 = netDevice()
     sw1.initialize('veos-01', 'arista', 'sw1')
-    function = 'getHostname, getVersion, getPlatform, getCPU, getDetails'
+    # function = 'getHostname, getVersion, getPlatform, getCPU, getDetails'
+    function = 'getSystemMac'
     result = run(sw1, function)
     # result2 = run(sw2, function)
     pp = pprint.PrettyPrinter(indent=2, width=40, depth=None)

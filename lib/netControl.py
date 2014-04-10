@@ -138,6 +138,9 @@ class netDevice(object):
                         continue
                     result.append(getattr(self._net_device, call)())
             else:
-                result = getattr(self._net_device, func_call[0])()
+                if func_call[0] not in implemented_methods:
+                    self.displayError()
+                else:
+                    result = getattr(self._net_device, func_call[0])()
 
             return result

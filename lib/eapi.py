@@ -79,6 +79,10 @@ class eapi(object):
         version_list = self._version_info['version'].split('.')
         return version_list
 
+    @classmethod
+    def _creatDataDict(cls, key, value):
+        return {key: value}
+
     # ----------------------------------------------------------------
     # Public / Unprotected Methods
     # ----------------------------------------------------------------
@@ -96,12 +100,10 @@ class eapi(object):
         self._name = name
 
     def getHost(self):
-        host = {'host': self._host}
-        return host
+        return self._creatDataDict('host', self._host)
 
     def getName(self):
-        name = {'name': self._name}
-        return name
+        return self._creatDataDict('name', self._name)
 
     # getVersionInfo created to streamline the calling of "show version"
     # there was allot of code that repeated it, this way, only one call is needed
@@ -123,9 +125,7 @@ class eapi(object):
         if not self._version_info:
             self.getVersionInfo()
 
-        version = {'version': self._version_info['version']}
-
-        return version
+        return self._creatDataDict('version', self._version_info['version'])
 
     # function returns a dictionary of the interfaces and their status
     def getInterfaceDetails(self):
@@ -137,9 +137,7 @@ class eapi(object):
         if not self._version_info:
             self.getVersionInfo()
 
-        platform = {'platform': self._version_info['modelName']}
-
-        return platform
+        return self._creatDataDict('platform', self._version_info['modelName'])
 
     def getSerialNumber(self):
 
@@ -148,7 +146,7 @@ class eapi(object):
 
         serial = self._version_info['serialNumber']
 
-        serial_number = {'serial_number': serial}
+        serial_number = self._creatDataDict('serial_number', serial)
 
         if serial_number['serial_number'] == '':
             non_serial = {'serial_number': 'not_found'}
@@ -159,8 +157,7 @@ class eapi(object):
     def getUptime(self):
         output = self._runCmdText('show uptime')
         c = output[0]['output']
-        up_time = {'uptime': c[13:].split(',')[0]}
-        return up_time
+        return self._creatDataDict('uptime', c[13:].split(',')[0])
 
     def getCPU(self):
         output = self._runCmdText('show processes top once')
@@ -262,6 +259,12 @@ class eapi(object):
 
         return total_mem
 
+    def getSystemMac(self):
+        if not self._version_info:
+            self.getVersionInfo()
+
+        return self._creatDataDict('system_mac', self._version_info['systemMacAddress'])
+
     def getDetails(self):
 
         # moved getVersionInfo() so this information gets refreshed as well
@@ -288,7 +291,8 @@ class eapi(object):
             self.getSerialNumber(),
             self.getHost(),
             self.getHostname(),
-            self.getName()
+            self.getName(),
+            self.getSystemMac()
             )
 
         details = {}
