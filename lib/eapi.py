@@ -196,20 +196,10 @@ class eapi(object):
             hostname = {'fqdn': output[0]['fqdn']}
             return hostname
         else:
-            # begins a breakdown of finding the hostname inside a string
-            # could probably be more efficient, but works for now
-            output = self._runCmdText('show lldp local-info')
+            output = self._runCmdText('show lldp local-info')[0]
 
-            # gets the 4th line of output which contains the hostname in FQDN format
-            host_line = output[0]['output'].split('\n')[3]
-
-            # splits the line into a list at the delimeter and assigns the 2nd indext to fqdn
-            # 2nd index contains the hostname
-            hostname = host_line.split(':')[1]
-            hostname = hostname[2:-1]
-            fqdn = {'fqdn': hostname}
-
-            # indexing removes the quotes (") from the begining and end of the hostname
+            regex_fqdn = re.search(r"(?<=System Name: \").*?(?=\")", output['output'])
+            fqdn = regex_fqdn.group(0)
             return fqdn
 
     def getFreeMem(self):
