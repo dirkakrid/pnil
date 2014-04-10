@@ -33,11 +33,10 @@ class eapi(object):
         self._switch = None
         self._name = None
         self._version_info = None
-        self._function = None
         self._connected = False
 
     def __str__(self):
-        rtr_str = 'name:\t\t{0}\nhost:\t\t{1}\nfunction:\t{2}'.format(self._name, self._host, self._function)
+        rtr_str = 'name:\t\t{0}\nhost:\t\t{1}\nfunction:\t{2}'.format(self._name, self._host)
         return rtr_str
 
     # ----------------------------------------------------------------
@@ -45,17 +44,15 @@ class eapi(object):
     # ----------------------------------------------------------------
 
     def _connectToSwitch(self):
-        if self._host:
+        try:
             return Server('https://{0}:{1}@{2}/command-api'.format(self._user, self._pass, self._host))
-        else:
-            raise ValueError('IP address not set or invalid')
+        except Exception as e:
+            print ('There was an error trying to connect: {}'.format(e))
 
     # run CMD
     def _runCmd(self, cli):
         if self._connected:
-            result = self._switch.runCmds(1, [cli])
-            self._connected = True
-            return result
+            return self._switch.runCmds(1, [cli])
         else:
             self.connect()
             return self._switch.runCmds(1, [cli])
@@ -63,9 +60,7 @@ class eapi(object):
     # run non JSON CMD
     def _runCmdText(self, cli):
         if self._connected:
-            result = self._switch.runCmds(1, [cli], 'text')
-            self._connected = True
-            return result
+            return self._switch.runCmds(1, [cli], 'text')
         else:
             self.connect()
             return self._switch.runCmds(1, [cli], 'text')
@@ -99,12 +94,6 @@ class eapi(object):
     def initialize(self, host, name):
         self._host = host
         self._name = name
-
-    def setFunction(self, func):
-        self._function = func
-
-    def getFunction(self):
-        return self._function
 
     def getHost(self):
         return self._host

@@ -37,20 +37,51 @@ def showConnectedIntf(_status):
 #----------------------------------------------------------------
 
 
-def printResult(l_status):
-    rtr_type = type(l_status)
-    if rtr_type is list:
-        pp = pprint.PrettyPrinter(indent=4)
-        pp.pprint(l_status)
-    elif rtr_type is dict:
-        for key, value in l_status.items():
-            if len(key) > 13:
-                print ('{0}: \t{1}'.format(key, value))
-            else:
-                print ('{0}: \t\t{1}'.format(key, value))
-    else:
-        print (l_status)
+def formatResult(result, func):
+    '''
+    Prints the result of the calling functions to screen with varying different types. 
+    1) Checks if result is a list then calls the formatList() function.
+    2) If the result is a dict, it calls  formatDict() function .
+    3) if neigther, just simply prints out the result.
+    '''
 
+    function = func.split(',')
+
+    if type(result) is list:
+        return formatList(result, function)
+    elif type(result) is dict:
+        return formatDict(result)
+    else:
+        return formatSingle(result, function)
+
+def formatSingle(result, func):
+    new_result = {}
+    new_result.update({func[0]: result})
+    return new_result
+
+def formatList(result, func):
+
+    counter = 0
+    new_result = {}
+    for item in result:
+        if type(item) is dict:
+            for key, value in item.iteritems():
+                # print ('{0}: \t{1}'.format(key, value))
+                new_result.update({key: value})
+        else:
+            # print("{0}: \t{1}".format(func[counter].lstrip(), item))
+            key = func[counter].lstrip().rstrip()
+            new_result.update({key: item})
+            counter += 1
+
+    return new_result
+
+def formatDict(result):
+    new_result = result
+    # for key, value in result.iteritems():
+    #     new_result[key] = value
+
+    return new_result
 
 # ----------------------------------------------------------------
 
@@ -99,39 +130,45 @@ def main():
         i.e => -m arista')
     _args = vars(parser.parse_args())
 
-    # _args = {
-    #     'function': 'getHostname',
-    #     'dns_name': 'eos-sw01',
-    #     'manufacturer': 'arista',
-    #     'name': 'sw1',
-    #     'cli': None,
-    #     'ip_address': None,
-    #     'username': None,
-    #     'password': None
-    # }
-
-    dev = build(_args)
-
+    # ----------------------------------------------------------------
+    # For running with with command-line arguments
+    # ----------------------------------------------------------------
+    # dev = build(_args)
     # sets the function based on the command-line argument passed -f or -c
-    function = _args['function'] if _args['function'] else _args['cli']
+    # function = _args['function'] if _args['function'] else _args['cli']
+    # result = run(dev, function)
+    # print (formatResult(result, function))
+    #
+    # ----------------------------------------------------------------
 
-    result = run(dev, function)
-
-    if result:
-        printResult(result)
-
-    # Interpreter simulation
+    # ----------------------------------------------------------------
+    # Interpreter simulation of __dir__ overload
+    # ----------------------------------------------------------------
     # sw1 = netDevice()
     # sw1.initialize('eos-sw01', 'arista')
     # list_dir = dir(sw1)
     # pp = pprint.PrettyPrinter(indent=4)
     # pp.pprint(list_dir)
-
     # prettyfying the printing of dir() call, just testing
     # for i in list_dir:
-    #     for key, value in i.items():
+    #     for key, value in i.iteritems():
     #         for j in range(0, len(value)):
     #             print "{0}:\t{1}".format(key, value[j])
+    #
+    # ----------------------------------------------------------------
+
+    # ----------------------------------------------------------------
+    # testing output as if running from command-line
+    # ----------------------------------------------------------------
+    sw1 = netDevice()
+    sw1.initialize('eos-sw01', 'arista', 'sw1')
+    # function = 'getHostname, getDetails'
+    function = 'getHostname'
+    result = run(sw1, function)
+    # print type(result)
+    print result
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(formatResult(result, function))
 
 
 if __name__ == '__main__':

@@ -15,7 +15,6 @@ class netDevice(object):
         self._net_device = None
         self._initialized = False
         self._created = False
-        self._function = None
 
     def __dir__(self):
         net_list = sorted(dir(self._net_device))
@@ -89,22 +88,31 @@ class netDevice(object):
             return self._net_device
 
     def displayError(self):
-        print '********************************************************'
-        print '***IP Address (-i), manufacturer (-m), AND one of*******'
-        print '***the following functions (-f) are required************'
-        print "***Use 'python main.py -h' for more info on proper usage"
-        print '********************************************************'
+        print ('****************************************************************')
+        print ('\n')
+        print ('IP Address (-i), manufacturer (-m), AND one of')
+        print ('the following functions (-f) are required')
+        print ('Use \'python main.py -h\' for more info on proper usage')
+        print ('The function called is not in the methods implemented')
+        print ('\n')
+        print ('*************************SEE BELOW****************************')
         funcs = dir(self._net_device)
         for each in funcs:
             if not (each.startswith('__') or each.startswith('_')):
                 print '*** ' + each
 
-    def _getFunction(self, func):
-        try:
-            self._function = func
-            return self._function
-        except Exception, e:
-            raise e
+    @classmethod
+    def _getFunction(cls, func):
+        
+        func_calls = func.split(',')
+        new_calls = []
+        if len(func_calls) > 1:
+            for call in func_calls:
+                new_calls.append(call.lstrip().rstrip())
+        else:
+            new_calls.append(func_calls[0].lstrip().rstrip())
+
+        return new_calls
 
     def run(self, func=None):
         '''
@@ -116,15 +124,20 @@ class netDevice(object):
             raise Exception("initialize device first, see help(netDevice) for more info")
 
         implemented_methods = dir(self._net_device)
+        func_call = self._getFunction(func)
 
-        if not func:
-            self.displayError()
-        elif func not in implemented_methods:
+        result = [] if len(func_call) > 1 else None
+
+        if not func_call:
             self.displayError()
         else:
-            func_call = self._getFunction(func)
-            self._net_device.setFunction(func_call)
-            return getattr(self._net_device, func_call)()
+            if len(func_call) > 1:
+                for call in func_call:
+                    if call not in implemented_methods:
+                        self.displayError()
+                        continue
+                    result.append(getattr(self._net_device, call)())
+            else:
+                result = getattr(self._net_device, func_call[0])()
 
-    def getCmdEntered(self):
-        return self._function
+            return result
