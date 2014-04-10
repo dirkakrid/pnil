@@ -137,6 +137,8 @@ def main():
     # sets the function based on the command-line argument passed -f or -c
     # function = _args['function'] if _args['function'] else _args['cli']
     # result = run(dev, function)
+    # pp = pprint.PrettyPrinter(indent=2)
+    # pp.pprint(formatResult(result, function))
     # print (formatResult(result, function))
     #
     # ----------------------------------------------------------------
@@ -161,14 +163,17 @@ def main():
     # testing output as if running from command-line
     # ----------------------------------------------------------------
     sw1 = netDevice()
+    # sw2 = netDevice()
     sw1.initialize('eos-sw01', 'arista', 'sw1')
-    # function = 'getHostname, getDetails'
-    function = 'getHostname'
+    # sw2.initialize('veos-01', 'arista', 'sw1')
+    function = 'getIntfDetails, getDetails'
+    # function = 'getDetails'
     result = run(sw1, function)
-    # print type(result)
-    print result
-    pp = pprint.PrettyPrinter(indent=4)
+    # result2 = run(sw2, function)
+    pp = pprint.PrettyPrinter(indent=2, width=40, depth=None)
     pp.pprint(formatResult(result, function))
+    # print('\n\n')
+    # pp.pprint(formatResult(result2, function))
 
 
 if __name__ == '__main__':

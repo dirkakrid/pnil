@@ -76,7 +76,7 @@ class eapi(object):
         if not self._version_info:
             self.getVersionInfo()
 
-        version_list = self._version_info[0]['version'].split('.')
+        version_list = self._version_info['version'].split('.')
         return version_list
 
     # ----------------------------------------------------------------
@@ -96,7 +96,12 @@ class eapi(object):
         self._name = name
 
     def getHost(self):
-        return self._host
+        host = {'host': self._host}
+        return host
+
+    def getName(self):
+        name = {'name': self._name}
+        return name
 
     # getVersionInfo created to streamline the calling of "show version"
     # there was allot of code that repeated it, this way, only one call is needed
@@ -104,7 +109,11 @@ class eapi(object):
     def getVersionInfo(self):
         ''' returns a 'show version' output as a dictionary '''
 
-        self._version_info = self._runCmd('show version')
+        # normaly returns list with dictionary.
+        version_info = self._runCmd('show version')
+        self._version_info = version_info[0]
+
+        #returns only dict of relevant information
         return self._version_info
 
     def getVersion(self):
@@ -114,10 +123,12 @@ class eapi(object):
         if not self._version_info:
             self.getVersionInfo()
 
-        return self._version_info[0]['version']
+        version = {'version': self._version_info['version']}
+
+        return version
 
     # function returns a dictionary of the interfaces and their status
-    def getIntfStatus(self):
+    def getIntfDetails(self):
         response = self._runCmd('show interfaces status')
 
         return response[0]['interfaceStatuses']
@@ -126,22 +137,29 @@ class eapi(object):
         if not self._version_info:
             self.getVersionInfo()
 
-        return self._version_info[0]["modelName"]
+        platform = {'platform': self._version_info['modelName']}
+
+        return platform
 
     def getSerialNumber(self):
 
         if not self._version_info:
             self.getVersionInfo()
 
-        if self._version_info[0]["serialNumber"] == '':
-            return '12345'
+        serial = self._version_info['serialNumber']
+
+        serial_number = {'serial_number': serial}
+
+        if serial_number['serial_number'] == '':
+            non_serial = {'serial_number': 'not_found'}
+            return non_serial
         else:
-            return self._version_info[0]["serialNumber"]
+            return serial_number
 
     def getUptime(self):
         output = self._runCmdText('show uptime')
         c = output[0]['output']
-        up_time = c[13:].split(',')[0]
+        up_time = {'uptime': c[13:].split(',')[0]}
         return up_time
 
     def getCPU(self):
@@ -152,7 +170,17 @@ class eapi(object):
 
         # cpu is then narrowed down to the actual usage, up to the first instance of a comma ','
         cpu = cpu_line[0:cpu_line.find(',')]
-        return cpu
+
+        #further broken down to getting only the percentage
+        # creates a temporary lists, finds the cpu in % 2nd item in list index [1]
+        # the corresponding temp object str is stripped of leading spaces lstrip()
+        # and reversed index to remove the us (microseconds) from the output (last two characters)
+        # value is assigned to s_cpu and returned => actual value in percentage.
+        s_cpu = cpu.split(':')[1].lstrip()[:-2]
+
+        # dictionary is created and returned
+        d_cpu = {'cpu_usage': s_cpu}
+        return d_cpu
 
     def getHostname(self):
         ''' Returns the device's none FQDN hostname '''
@@ -161,7 +189,7 @@ class eapi(object):
 
         if int(version_int[0]) >= 4 and int(version_int[1]) >= 13:
             output = self._runCmd('show hostname')
-            hostname = output[0]['hostname']
+            hostname = {'hostname': output[0]['hostname']}
             return hostname
         else:
             # begins a breakdown of finding the hostname inside a string
@@ -178,9 +206,11 @@ class eapi(object):
             # assignes the first index of fqdn after splitting at the delimeter (.)
             # this splits the fqdn into three parts, the [hostname, domain, suffix]
             hostname = host_fqdn.split('.')[0]
+            hostname = hostname[2:]
+            r_hostname = {'hostname': hostname}
 
             # indexing removes the " from the begining of the hostname
-            return hostname[2:]
+            return r_hostname
 
     def getFQDN(self):
         '''
@@ -193,7 +223,7 @@ class eapi(object):
 
         if int(version_int[0]) >= 4 and int(version_int[1]) >= 13:
             output = self._runCmd("show hostname")
-            hostname = output[0]['fqdn']
+            hostname = {'fqdn': output[0]['fqdn']}
             return hostname
         else:
             # begins a breakdown of finding the hostname inside a string
@@ -206,9 +236,11 @@ class eapi(object):
             # splits the line into a list at the delimeter and assigns the 2nd indext to fqdn
             # 2nd index contains the hostname
             hostname = host_line.split(':')[1]
+            hostname = hostname[2:-1]
+            fqdn = {'fqdn': hostname}
 
             # indexing removes the quotes (") from the begining and end of the hostname
-            return hostname[2:-1]
+            return fqdn
 
     def getFreeMem(self):
 
@@ -216,7 +248,9 @@ class eapi(object):
         if not self._version_info:
             self.getVersionInfo()
 
-        return self._version_info[0]['memFree']
+        free_mem = {'free_memory': self._version_info['memFree']}
+
+        return free_mem
 
     def getTotalMem(self):
 
@@ -224,7 +258,9 @@ class eapi(object):
         if not self._version_info:
             self.getVersionInfo()
 
-        return self._version_info[0]['memTotal']
+        total_mem = {'total_memory': self._version_info['memTotal']}
+
+        return total_mem
 
     def getDetails(self):
 
@@ -232,19 +268,37 @@ class eapi(object):
         # and to remove the redundancy of __init__
         self.getVersionInfo()
 
-        sh_ver = self.getVersion()
-        cpu_utilization = self.getCPU()
-        free_memory = self.getFreeMem()
-        total_memory = self.getTotalMem()
-        uptime = self.getUptime()
-        platform = self.getPlatform()
-        serial_number = self.getSerialNumber()
-        connect_ip = self.getHost()
-        hostname = self.getHostname()
+        # sh_ver = self.getVersion()
+        # cpu_utilization = self.getCPU()
+        # free_memory = self.getFreeMem()
+        # total_memory = self.getTotalMem()
+        # uptime = self.getUptime()
+        # platform = self.getPlatform()
+        # serial_number = self.getSerialNumber()
+        # connect_ip = self.getHost()
+        # hostname = self.getHostname()
 
-        details = {'hostname': hostname, 'connect_ip': connect_ip, 'platform': platform,
-                      'version': sh_ver, 'serial_number': serial_number, 'system_uptime': uptime,
-                      'cpu_utilization': cpu_utilization, 'free_system_memory': free_memory,
-                      'total_sytem_memory': total_memory, 'vendor': 'arista'}
+        items = (
+            self.getVersion(),
+            self.getCPU(),
+            self.getFreeMem(),
+            self.getTotalMem(),
+            self.getUptime(),
+            self.getPlatform(),
+            self.getSerialNumber(),
+            self.getHost(),
+            self.getHostname(),
+            self.getName()
+            )
+
+        details = {}
+
+        for item in items:
+            details.update(item)
+
+        # details = {'hostname': hostname, 'connect_ip': connect_ip, 'platform': platform,
+        #               'version': sh_ver, 'serial_number': serial_number, 'system_uptime': uptime,
+        #               'cpu_utilization': cpu_utilization, 'free_system_memory': free_memory,
+        #               'total_sytem_memory': total_memory, 'vendor': 'arista'}
 
         return details
