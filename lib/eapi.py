@@ -11,6 +11,7 @@
 # ----------------------------------------------------------------
 
 from jsonrpclib import Server
+import re
 
 # ----------------------------------------------------------------
 
@@ -160,24 +161,11 @@ class eapi(object):
         return self._creatDataDict('uptime', c[13:].split(',')[0])
 
     def getCPU(self):
-        output = self._runCmdText('show processes top once')
-        # cpu = index 0 of returned list  split by new-lines
-        # grabs the 3rd line which contains Cpu values at index [2]
-        cpu_line = output[0]['output'].split('\n')[2]
-
-        # cpu is then narrowed down to the actual usage, up to the first instance of a comma ','
-        cpu = cpu_line[0:cpu_line.find(',')]
-
-        #further broken down to getting only the percentage
-        # creates a temporary lists, finds the cpu in % 2nd item in list index [1]
-        # the corresponding temp object str is stripped of leading spaces lstrip()
-        # and reversed index to remove the us (microseconds) from the output (last two characters)
-        # value is assigned to s_cpu and returned => actual value in percentage.
-        s_cpu = cpu.split(':')[1].lstrip()[:-2]
-
-        # dictionary is created and returned
-        d_cpu = {'cpu_usage': s_cpu}
-        return d_cpu
+        output = self._runCmdText('show processes top once')[0]
+        
+        regex_cpu = re.search(r"\d+\.\d*%(?=us)", output['output'])
+        cpu = regex_cpu.group(0)
+        return self._creatDataDict('cpu_usage', cpu)
 
     def getHostname(self):
         ''' Returns the device's none FQDN hostname '''
@@ -186,28 +174,13 @@ class eapi(object):
 
         if int(version_int[0]) >= 4 and int(version_int[1]) >= 13:
             output = self._runCmd('show hostname')
-            hostname = {'hostname': output[0]['hostname']}
-            return hostname
+            return self._creatDataDict('hostname', output[0]['hostname'])
         else:
-            # begins a breakdown of finding the hostname inside a string
-            # could probably be more efficient, but works for now
-            output = self._switch.runCmds(1, ['show lldp local-info'], 'text')
+            output = self._runCmdText('show lldp local-info')[0]
 
-            # gets the 4th line of output which contains the hostname in FQDN format
-            host_line = output[0]['output'].split('\n')[3]
-
-            # splits the line into a list at the delimeter and assigns the 2nd indext to fqdn
-            # 2nd index contains the hostname
-            host_fqdn = host_line.split(':')[1]
-
-            # assignes the first index of fqdn after splitting at the delimeter (.)
-            # this splits the fqdn into three parts, the [hostname, domain, suffix]
-            hostname = host_fqdn.split('.')[0]
-            hostname = hostname[2:]
-            r_hostname = {'hostname': hostname}
-
-            # indexing removes the " from the begining of the hostname
-            return r_hostname
+            regex_host = re.search(r"(?<=System Name: \").*?(?=\.)", output['output'])
+            host = regex_host.group(0)
+            return host
 
     def getFQDN(self):
         '''
@@ -225,7 +198,7 @@ class eapi(object):
         else:
             # begins a breakdown of finding the hostname inside a string
             # could probably be more efficient, but works for now
-            output = self._switch.runCmds(1, ['show lldp local-info'], 'text')
+            output = self._runCmdText('show lldp local-info')
 
             # gets the 4th line of output which contains the hostname in FQDN format
             host_line = output[0]['output'].split('\n')[3]
