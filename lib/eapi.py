@@ -180,7 +180,7 @@ class eapi(object):
 
             regex_host = re.search(r"(?<=System Name: \").*?(?=\.)", output['output'])
             host = regex_host.group(0)
-            return host
+            return self._creatDataDict('hostname', host)
 
     def getFQDN(self):
         '''
@@ -200,7 +200,7 @@ class eapi(object):
 
             regex_fqdn = re.search(r"(?<=System Name: \").*?(?=\")", output['output'])
             fqdn = regex_fqdn.group(0)
-            return fqdn
+            return self._creatDataDict('fqdn', fqdn)
 
     def getFreeMem(self):
 
