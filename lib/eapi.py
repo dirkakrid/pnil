@@ -233,37 +233,67 @@ class eapi(object):
 
         return self._createDataDict('system_mac', self._version_info['systemMacAddress'])
 
+    # ----------------------------------------------------------------
+    # FIND ROUTING INFORMATION
+    # ----------------------------------------------------------------
+
+    @classmethod
+    def getRoutingProtocols(cls, search_list):
+        # regEX explination in regex_notes.md
+        p_compile = re.compile(r'(?<=\s)((\w)|(\w\s\w+\d?)|(\w+?\*))(?=\s+\d+\.)')
+
+        protocols = []
+        for p in search_list:
+            p_match = p_compile.search(p)
+
+            if p_match:
+                protocols.append(p_match.group(0))
+
+        # removes duplicates from the list, by converting to a set, then back to list
+        protocols = list(set(protocols))
+
+        return protocols
+
+    @classmethod
+    def getRoutePrefixes(cls, search_list):
+        # regEX explination in regex_notes.md
+        rp_compile = re.compile(r'((\d{1,3}\.){3}(\d{1,3}){1}(/\d{1,2})|(\d{1,3}\.){3}(\d{1,3}){1}(?=\s?\[))')
+
+        prefixes = []
+        for p in search_list:
+            pr_match = rp_compile.search(p)
+            if pr_match:
+                prefixes.append(pr_match.group(0))
+
+        return prefixes
+
     def getRoutesPerProtocol(self, vrf=None):
         if vrf:
             routes = self._runCmdText(['show ip route vrf {0}'.format(vrf)])[0]['output']
         else:
             routes = self._runCmdText(['show ip route'])[0]['output'].split('\n')
 
-        protocols = {
-            'C': [],
-            'O': [],
-            'O IA': [],
-            'O E2': [],
-            'S': [],
-            'B': []
-        }
+        p_keys = self.getRoutingProtocols(routes)
+        pr_keys = self.getRoutePrefixes(routes)
+        protocols = {key: {} for key in p_keys}
 
         # regEX explination in regex_notes.md
-        p_compile = re.compile(r'(?<=\s)((\w\d?)|(\w\s\w+\d?)|(\w+?\*))(?=\s+\d+\.)')
+        # p_compile = re.compile(r'(?<=\s)((\w)|(\w\s\w+\d?)|(\w+?\*))(?=\s+\d+\.)')
 
         # regEX explination in regex_notes.md
-        rp_compile = re.compile(r'((\d{1,3}\.){3}(\d{1,3}){1}(/\d{1,2})|(\d{1,3}\.){3}(\d{1,3}){1}(?=\s?\[))')
-        for p in routes:
-            p_match = p_compile.search(p)
-            pr_match = rp_compile.search(p)
+        # rp_compile = re.compile(r'((\d{1,3}\.){3}(\d{1,3}){1}(/\d{1,2})|(\d{1,3}\.){3}(\d{1,3}){1}(?=\s?\[))')
+        # for p in routes:
+        #     p_match = p_compile.search(p)
+        #     pr_match = rp_compile.search(p)
 
-            if p_match and pr_match:
-                protocols[p_match.group(0)].append(pr_match.group(0))
+        #     if p_match and pr_match:
+        #         protocols[p_match.group(0)].append(pr_match.group(0))
 
-        route_info = {}
-        route_info.update(protocols)
+        # route_info = {}
+        # route_info.update(protocols)
 
-        return route_info
+        # return route_info
+        return protocols
 
     def getRoutesDetail(self, vrf=None):
         if vrf:
@@ -276,7 +306,7 @@ class eapi(object):
         protocols = [[] for i in range(len(routes))]
 
         # regEX explination in regex_notes.md
-        p_compile = re.compile(r'(?<=\s)((\w\d?)|(\w\s\w+\d?)|(\w+?\*))(?=\s+\d+\.)')
+        p_compile = re.compile(r'(?<=\s)((\w)|(\w\s\w+\d?)|(\w+?\*))(?=\s+\d+\.)')
 
         # regEX explination in regex_notes.md
         rp_compile = re.compile(r'((\d{1,3}\.){3}(\d{1,3}){1}(/\d{1,2})|(\d{1,3}\.){3}(\d{1,3}){1}(?=\s?\[))')
@@ -295,6 +325,8 @@ class eapi(object):
         route_info['Routes'] = protocols
 
         return route_info
+
+    # ----------------------------------------------------------------
 
     def getDetails(self):
 
