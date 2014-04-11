@@ -131,6 +131,7 @@ def main():
     parser.add_argument('-n', '--name', help='Enter the device\'s name. i.e -n sw1')
     parser.add_argument('-m', '--manufacturer', help='Enter the manufacturer to run on\
         i.e => -m arista')
+    parser.add_argument('--vrf', help='Enter VRF name')
     _args = vars(parser.parse_args())
 
     # ----------------------------------------------------------------
@@ -166,15 +167,18 @@ def main():
     # testing output as if running from command-line
     # ----------------------------------------------------------------
     sw1 = netDevice()
-    sw1.initialize('veos-01', 'arista', 'sw1')
+    sw1.initialize('veos-m-01', 'arista', 'sw1')
     # function = 'getHostname, getVersion, getPlatform, getCPU, getDetails'
-    function = 'getAAA'
+    function = 'getRoutesForProtocol, getRoutesDetail'
     result = run(sw1, function)
     # result2 = run(sw2, function)
-    pp = pprint.PrettyPrinter(indent=2, width=40, depth=None)
+    pp = pprint.PrettyPrinter(indent=2, width=60)
     # pp.pprint(formatResult(result, function))
     # print('\n\n')
-    pp.pprint(result)
+    if type(result) is not str and type(result) is not unicode:
+        pp.pprint(result)
+    else:
+        print (result)
 
 
 if __name__ == '__main__':

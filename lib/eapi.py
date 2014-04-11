@@ -61,10 +61,10 @@ class eapi(object):
     # run non JSON CMD
     def _runCmdText(self, cli):
         if self._connected:
-            return self._switch.runCmds(1, [cli], 'text')
+            return self._switch.runCmds(1, cli, 'text')
         else:
             self.connect()
-            return self._switch.runCmds(1, [cli], 'text')
+            return self._switch.runCmds(1, cli, 'text')
 
     def _versionList(self):
         '''
@@ -133,10 +133,10 @@ class eapi(object):
         return self._createDataDict('version', self._version_info['version'])
 
     # function returns a dictionary of the interfaces and their status
-    def getInterfaceDetails(self):
-        response = self._runCmd('show interfaces status')
+    def getInterfacesStatus(self):
+        response = self._runCmd(['show interfaces status'])[0]['interfaceStatuses']
 
-        return response[0]['interfaceStatuses']
+        return response
 
     def getPlatform(self):
         if not self._version_info:
@@ -160,14 +160,15 @@ class eapi(object):
             return serial_number
 
     def getUptime(self):
-        output = self._runCmdText('show uptime')[0]['output']
-        uptime = re.search(r"(?<=up\s\s)([\d:]+)", output).group(0)
+        output = self._runCmdText(['show uptime'])[0]['output']
+        # finds uptime if output is in H:M or (|) in "number Mins|Days"
+        uptime = re.search(r"(?<=up\s)([\d:]+(?=\s?,)) | (?<=up\s)[\d]+\s\w+(?=\s?\,)", output).group(0)
         return self._createDataDict('uptime', uptime)
 
     def getCPU(self):
-        output = self._runCmdText('show processes top once')[0]
+        output = self._runCmdText(['show processes top once'])[0]['output']
         
-        cpu = re.search(r"\d+\.\d*%(?=us)", output['output']).group(0)
+        cpu = re.search(r"\d+\.\d*%(?=us)", output).group(0)
         return self._createDataDict('cpu_usage', cpu)
 
     def getHostname(self):
@@ -176,12 +177,12 @@ class eapi(object):
         version_int = self._versionList()
 
         if int(version_int[0]) >= 4 and int(version_int[1]) >= 13:
-            output = self._runCmd('show hostname')
-            return self._createDataDict('hostname', output[0]['hostname'])
+            output = self._runCmd(['show hostname'])[0]['hostname']
+            return self._createDataDict('hostname', output)
         else:
-            output = self._runCmdText('show lldp local-info')[0]
+            output = self._runCmdText(['show lldp local-info'])[0]['output']
 
-            host = re.search(r"(?<=System Name: \").*?(?=\.)", output['output']).group(0)
+            host = re.search(r"(?<=System Name: \").*?(?=\.)", output).group(0)
             return self._createDataDict('hostname', host)
 
     def getFQDN(self):
@@ -194,13 +195,12 @@ class eapi(object):
         version_int = self._versionList()
 
         if int(version_int[0]) >= 4 and int(version_int[1]) >= 13:
-            output = self._runCmd("show hostname")
-            hostname = {'fqdn': output[0]['fqdn']}
-            return hostname
+            output = self._runCmd(["show hostname"])[0]['fqdn']
+            return self._createDataDict('fqdn', output)
         else:
-            output = self._runCmdText('show lldp local-info')[0]
+            output = self._runCmdText(['show lldp local-info'])[0]['output']
 
-            fqdn = re.search(r"(?<=System Name: \").*?(?=\")", output['output']).group(0)
+            fqdn = re.search(r"(?<=System Name: \").*?(?=\")", output).group(0)
             return self._createDataDict('fqdn', fqdn)
 
     def getAAA(self):
@@ -232,6 +232,69 @@ class eapi(object):
             self.getVersionInfo()
 
         return self._createDataDict('system_mac', self._version_info['systemMacAddress'])
+
+    def getRoutesPerProtocol(self, vrf=None):
+        if vrf:
+            routes = self._runCmdText(['show ip route vrf {0}'.format(vrf)])[0]['output']
+        else:
+            routes = self._runCmdText(['show ip route'])[0]['output'].split('\n')
+
+        protocols = {
+            'C': [],
+            'O': [],
+            'O IA': [],
+            'O E2': [],
+            'S': [],
+            'B': []
+        }
+
+        # regEX explination in regex_notes.md
+        p_compile = re.compile(r'(?<=\s)((\w\d?)|(\w\s\w+\d?)|(\w+?\*))(?=\s+\d+\.)')
+
+        # regEX explination in regex_notes.md
+        rp_compile = re.compile(r'((\d{1,3}\.){3}(\d{1,3}){1}(/\d{1,2})|(\d{1,3}\.){3}(\d{1,3}){1}(?=\s?\[))')
+        for p in routes:
+            p_match = p_compile.search(p)
+            pr_match = rp_compile.search(p)
+
+            if p_match and pr_match:
+                protocols[p_match.group(0)].append(pr_match.group(0))
+
+        route_info = {}
+        route_info.update(protocols)
+
+        return route_info
+
+    def getRoutesDetail(self, vrf=None):
+        if vrf:
+            routes = self._runCmdText(['show ip route vrf {0}'.format(vrf)])[0]['output']
+        else:
+            routes = self._runCmdText(['show ip route'])[0]['output'].split('\n')
+        
+        routes = routes[9:-2]
+
+        protocols = [[] for i in range(len(routes))]
+
+        # regEX explination in regex_notes.md
+        p_compile = re.compile(r'(?<=\s)((\w\d?)|(\w\s\w+\d?)|(\w+?\*))(?=\s+\d+\.)')
+
+        # regEX explination in regex_notes.md
+        rp_compile = re.compile(r'((\d{1,3}\.){3}(\d{1,3}){1}(/\d{1,2})|(\d{1,3}\.){3}(\d{1,3}){1}(?=\s?\[))')
+        counter = 0
+        for p in routes:
+            p_match = p_compile.search(p)
+            pr_match = rp_compile.search(p)
+
+            if p_match and pr_match:
+                protocols[counter].append(p_match.group(0))
+                protocols[counter].append(pr_match.group(0))
+
+                counter += 1
+
+        route_info = {'Routes': []}
+        route_info['Routes'] = protocols
+
+        return route_info
 
     def getDetails(self):
 
