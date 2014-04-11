@@ -14,6 +14,17 @@ from jsonrpclib import Server
 import re
 
 # ----------------------------------------------------------------
+# GLOBAL VARIABLES
+# ----------------------------------------------------------------
+
+# regEX explinations in regex_notes.md
+PROTOCOL_RE = re.compile(r'(?<=\s)(([a-zA-Z])|([a-zA-Z]\s[a-zA-Z]+[0-9]?)|([a-zA-Z]+?\*))(?=\s+[0-9]+\.)')
+PREFIX_RE = re.compile(r'(([0-9]{1,3}\.){3}([0-9]{1,3}){1}(/[0-9]{1,2})|([0-9]{1,3}\.){3}([0-9]{1,3}){1}(?=\s?\[))')
+AD_METRIC_RE = re.compile(r'(?<=\[)([0-9]{1,3}/[0-9]{1,3})(?=\])')
+NEXTHOP_IP = re.compile(r'(?<=[a-zA-Z]{3}\s)(([0-9]{1,3}\.){3}[0-9]{1,3}(?=,))')
+NEXTHOP_INT_RE = re.compile(r'([a-zA-Z])+([0-9]{1,3})(/?)([0-9]{1,3})?(/?)([0-9]{1,3})?(/?)([0-9]{1,3})?$')
+
+# ----------------------------------------------------------------
 
 # ----------------------------------------------------------------
 # Configuration section
@@ -239,90 +250,96 @@ class eapi(object):
 
     @classmethod
     def getRoutingProtocols(cls, search_list):
-        # regEX explination in regex_notes.md
-        p_compile = re.compile(r'(?<=\s)((\w)|(\w\s\w+\d?)|(\w+?\*))(?=\s+\d+\.)')
-
         protocols = []
         for p in search_list:
-            p_match = p_compile.search(p)
+            p_match = PROTOCOL_RE.search(p)
 
             if p_match:
                 protocols.append(p_match.group(0))
 
         # removes duplicates from the list, by converting to a set, then back to list
-        protocols = list(set(protocols))
+        if len(protocols) > 1:
+            protocols = list(set(protocols))
 
         return protocols
 
     @classmethod
     def getRoutePrefixes(cls, search_list):
-        # regEX explination in regex_notes.md
-        rp_compile = re.compile(r'((\d{1,3}\.){3}(\d{1,3}){1}(/\d{1,2})|(\d{1,3}\.){3}(\d{1,3}){1}(?=\s?\[))')
-
         prefixes = []
+        protocol = []
         for p in search_list:
-            pr_match = rp_compile.search(p)
-            if pr_match:
-                prefixes.append(pr_match.group(0))
+            protocol = PROTOCOL_RE.search(p)
+            if protocol:
+                pr_match = PREFIX_RE.search(p)
+                if pr_match:
+                    prefixes.append(pr_match.group(0))
 
         return prefixes
 
-    def getRoutesPerProtocol(self, vrf=None):
-        if vrf:
-            routes = self._runCmdText(['show ip route vrf {0}'.format(vrf)])[0]['output']
-        else:
-            routes = self._runCmdText(['show ip route'])[0]['output'].split('\n')
+    @classmethod
+    def getADMetric(cls, search_list):
+        admetric = []
+        for ad in search_list:
+            ad_match = AD_METRIC_RE.search(ad)
+            if ad_match:
+                admetric.append(ad_match.group(0))
+            else:
+                admetric.append('0/0')
 
-        p_keys = self.getRoutingProtocols(routes)
-        pr_keys = self.getRoutePrefixes(routes)
-        protocols = {key: {} for key in p_keys}
+        return admetric
 
-        # regEX explination in regex_notes.md
-        # p_compile = re.compile(r'(?<=\s)((\w)|(\w\s\w+\d?)|(\w+?\*))(?=\s+\d+\.)')
+    @classmethod
+    def getNextHop(cls, search_list):
+        next_hop = []
+        for n in search_list:
+            n_match = NEXTHOP_IP.search(n)
+            if n_match:
+                next_hop.append(n_match.group(0))
+            else:
+                next_hop.append('directly connected')
 
-        # regEX explination in regex_notes.md
-        # rp_compile = re.compile(r'((\d{1,3}\.){3}(\d{1,3}){1}(/\d{1,2})|(\d{1,3}\.){3}(\d{1,3}){1}(?=\s?\[))')
-        # for p in routes:
-        #     p_match = p_compile.search(p)
-        #     pr_match = rp_compile.search(p)
+        return next_hop
 
-        #     if p_match and pr_match:
-        #         protocols[p_match.group(0)].append(pr_match.group(0))
+    @classmethod
+    def getNextHopInterface(cls, search_list):
+        next_hop_int = []
+        for n in search_list:
+            n_match = NEXTHOP_INT_RE.search(n)
+            if n_match:
+                next_hop_int.append(n_match.group(0))
+            else:
+                next_hop_int.append('not set')
 
-        # route_info = {}
-        # route_info.update(protocols)
-
-        # return route_info
-        return protocols
+        return next_hop_int
 
     def getRoutesDetail(self, vrf=None):
         if vrf:
             routes = self._runCmdText(['show ip route vrf {0}'.format(vrf)])[0]['output']
         else:
             routes = self._runCmdText(['show ip route'])[0]['output'].split('\n')
-        
+
         routes = routes[9:-2]
 
-        protocols = [[] for i in range(len(routes))]
+        p_keys = self.getRoutingProtocols(routes)
+        protocols = {key: {} for key in p_keys}
 
-        # regEX explination in regex_notes.md
-        p_compile = re.compile(r'(?<=\s)((\w)|(\w\s\w+\d?)|(\w+?\*))(?=\s+\d+\.)')
-
-        # regEX explination in regex_notes.md
-        rp_compile = re.compile(r'((\d{1,3}\.){3}(\d{1,3}){1}(/\d{1,2})|(\d{1,3}\.){3}(\d{1,3}){1}(?=\s?\[))')
-        counter = 0
         for p in routes:
-            p_match = p_compile.search(p)
-            pr_match = rp_compile.search(p)
+            p_match = PROTOCOL_RE.search(p)
+            pr_match = PREFIX_RE.search(p)
 
             if p_match and pr_match:
-                protocols[counter].append(p_match.group(0))
-                protocols[counter].append(pr_match.group(0))
+                p_key = p_match.group(0)
+                prefix = pr_match.group(0)
+                ad_metric = self.getADMetric([p])
+                next_hop = self.getNextHop([p])
+                next_hop_int = self.getNextHopInterface([p])
+                protocols[p_key][prefix] = {'ad_metric': ad_metric[0],
+                                                        'next_hop': next_hop[0],
+                                                        'next_intf': next_hop_int[0]
+                                            }
 
-                counter += 1
-
-        route_info = {'Routes': []}
-        route_info['Routes'] = protocols
+        route_info = {}
+        route_info.update(protocols)
 
         return route_info
 

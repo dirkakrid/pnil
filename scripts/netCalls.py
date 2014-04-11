@@ -169,7 +169,7 @@ def main():
     sw1 = netDevice()
     sw1.initialize('veos-m-01', 'arista', 'sw1')
     # function = 'getHostname, getVersion, getPlatform, getCPU, getDetails'
-    function = 'getRoutesPerProtocol'
+    function = 'getRoutesDetail'
     result = run(sw1, function)
     # result2 = run(sw2, function)
     pp = pprint.PrettyPrinter(indent=2, width=60)
