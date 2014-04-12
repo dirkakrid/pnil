@@ -188,12 +188,14 @@ class printRouting(object):
         print('\n')
         print ('# CONNECTED ROUTES')
         print('#' + '*' * 80)
-        for prefix, values in result['C'].iteritems():
-            prefix_tab = '\t\t' if len(prefix) <= 13 else '\t'
-            next_tab = '\t\t' if len(values['next_hop']) <= 13 else '\t'
-            print ('# Prefix: {0}{1}AD/Metric: {2}\tNext-Hop: {3}{4}Next-Hop-Interface: {5}\
-                        '.format(prefix, prefix_tab, values['ad_metric'], values['next_hop'],\
-                         next_tab, values['next_hop_int']))
+        conn_key = 'C'
+        if conn_key in result.keys():
+            for prefix, values in result['C'].iteritems():
+                prefix_tab = '\t\t' if len(prefix) <= 13 else '\t'
+                next_tab = '\t\t' if len(values['next_hop']) <= 13 else '\t'
+                print ('# Prefix: {0}{1}AD/Metric: {2}\tNext-Hop: {3}{4}Next-Hop-Interface: {5}\
+                            '.format(prefix, prefix_tab, values['ad_metric'], values['next_hop'],\
+                             next_tab, values['next_hop_int']))
 
     print('\n')
 
@@ -202,21 +204,23 @@ class printRouting(object):
         print('\n')
         print ('# STATIC ROUTES')
         print('#' + '*' * 80)
-        for prefix, values in result['S'].iteritems():
-            prefix_tab = '\t\t' if len(prefix) <= 13 else '\t'
-            next_tab = '\t\t' if len(values['next_hop']) <= 13 else '\t'
-            print ('# Prefix: {0}{1}AD/Metric: {2}\tNext-Hop: {3}{4}Next-Hop-Interface: {5}\
-                        '.format(prefix, prefix_tab, values['ad_metric'], values['next_hop'],\
-                         next_tab, values['next_hop_int']))
+        static_key = 'S'
+        if static_key in result.keys():
+            for prefix, values in result['S'].iteritems():
+                prefix_tab = '\t\t' if len(prefix) <= 13 else '\t'
+                next_tab = '\t\t' if len(values['next_hop']) <= 13 else '\t'
+                print ('# Prefix: {0}{1}AD/Metric: {2}\tNext-Hop: {3}{4}Next-Hop-Interface: {5}\
+                            '.format(prefix, prefix_tab, values['ad_metric'], values['next_hop'],\
+                             next_tab, values['next_hop_int']))
 
         print('\n')
 
     @classmethod
     def printOSPF(cls, result):
-        ospf_keys = ['O', 'O IA', 'O E2', 'O E1', 'O N1', 'O N2']
         print('\n')
         print ('# OSPF ROUTES')
         print('#' + '*' * 80)
+        ospf_keys = ['O', 'O IA', 'O E2', 'O E1', 'O N1', 'O N2']
         for key in ospf_keys:
             if key in result.keys():
                 for prefix, values in result[key].iteritems():
@@ -230,24 +234,30 @@ class printRouting(object):
 
     @classmethod
     def printBGP(cls, result):
+        bgp_key = 'B'
         print('\n')
         print ('# BGP ROUTES')
         print('#' + '*' * 80)
-        for prefix, values in result['B'].iteritems():
-            prefix_tab = '\t\t' if len(prefix) <= 13 else '\t'
-            next_tab = '\t\t' if len(values['next_hop']) <= 13 else '\t'
-            print ('# Prefix: {0}{1}AD/Metric: {2}\tNext-Hop: {3}{4}Next-Hop-Interface: {5}\
-                        '.format(prefix, prefix_tab, values['ad_metric'], values['next_hop'],\
-                         next_tab, values['next_hop_int']))
+        if bgp_key in result.keys():
+            for prefix, values in result['B'].iteritems():
+                prefix_tab = '\t\t' if len(prefix) <= 13 else '\t'
+                next_tab = '\t\t' if len(values['next_hop']) <= 13 else '\t'
+                print ('# Prefix: {0}{1}AD/Metric: {2}\tNext-Hop: {3}{4}Next-Hop-Interface: {5}\
+                            '.format(prefix, prefix_tab, values['ad_metric'], values['next_hop'],\
+                             next_tab, values['next_hop_int']))
+        else:
+            print ('No BGP Routes were Found.')
         print('\n')
 
     @classmethod
-    def findByProtocol(cls, result, protocol='S'):
-        if protocol.lower() == 'c' or protocol.lower() == 'connected':
-            cls.printConnected(result)
-        elif protocol.lower() == 's' or protocol.lower() == 'static':
-            cls.printStatics(result)
-        elif protocol.lower() == 'o' or protocol.lower() == 'ospf':
-            cls.printOSPF(result)
-        elif protocol.lower() == 'b' or protocol.lower() == 'bgp':
-            cls.printBGP(result)
+    def findByProtocol(cls, result, protocol=None):
+
+        for p in protocol:
+            if p.lower() == 'c' or p.lower() == 'connected':
+                cls.printConnected(result)
+            elif p.lower() == 's' or p.lower() == 'static':
+                cls.printStatics(result)
+            elif p.lower() == 'o' or p.lower() == 'ospf':
+                cls.printOSPF(result)
+            elif p.lower() == 'b' or p.lower() == 'bgp':
+                cls.printBGP(result)

@@ -106,9 +106,7 @@ def main():
     print ('# ' + '*' * 80)
     print ('# PRINTING ARISTA ROUTES')
     print ('# ' + '-' * 80)
-    printRouting.findByProtocol(result, 'Connected')
-    printRouting.findByProtocol(result, 'Static')
-    printRouting.findByProtocol(result, 'OSPF')
+    printRouting.findByProtocol(result, ['C', 'OSPF', 'STATIC'])
 
     # ----------------------------------------------------------------
 
@@ -179,10 +177,7 @@ def main():
     print ('# ' + '-' * 80)
     print ('# PRINTING CISCO ROUTES')
     print ('# ' + '-' * 80)
-    printRouting.findByProtocol(cisco_routes, 'Connected')
-    printRouting.findByProtocol(cisco_routes, 'Static')
-    printRouting.findByProtocol(cisco_routes, 'OSPF')
-    printRouting.findByProtocol(cisco_routes, 'BGP')
+    printRouting.findByProtocol(cisco_routes, ['C', 'B', 'OSPF', 'STATIC'])
 
 
 if __name__ == '__main__':
