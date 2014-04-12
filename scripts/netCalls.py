@@ -149,10 +149,14 @@ def main():
     # ----------------------------------------------------------------
     # For running with with command-line arguments
     # ----------------------------------------------------------------
-    # dev = build(args)
-    # result = run(dev, args)
-    # pp = pprint.PrettyPrinter(indent=2)
-    # pp.pprint(formatResult(result, getFunction(args)))
+    dev = build(args)
+    result = run(dev, args)
+
+    pp = pprint.PrettyPrinter(indent=2, width=60)
+    if type(result) is not str and type(result) is not unicode:
+        pp.pprint(result)
+    else:
+        print (result)
     #
     # ----------------------------------------------------------------
 
@@ -160,21 +164,19 @@ def main():
     # testing output as if running from interpreter, by passing arguments directly
     # and manually initializing the device
     # ----------------------------------------------------------------
-    sw1 = netDevice()
-    sw1.initialize('veos-m-01', 'arista', 'sw1')
+    # sw1 = netDevice()
+    # sw1.initialize('veos-m-01', 'arista', 'sw1')
     # # function = 'getHostname, getVersion, getPlatform, getCPU, getDetails'
-    function = 'getRoutesDetail'
-    result = runInterpreter(sw1, [function, 'default'])
-    pp = pprint.PrettyPrinter(indent=2, width=60)
-    # pp.pprint(formatResult(result, function))
-    # # print('\n\n')
+    # function = 'getRoutesDetail'
+    # result = runInterpreter(sw1, [function, 'default'])
+    # pp = pprint.PrettyPrinter(indent=2, width=60)
     # if type(result) is not str and type(result) is not unicode:
     #     pp.pprint(result)
     # else:
     #     print (result)
-    findByProtocol(result, 'Connected')
-    findByProtocol(result, 'Static')
-    findByProtocol(result, 'OSPF')
+    # findByProtocol(result, 'Connected')
+    # findByProtocol(result, 'Static')
+    # findByProtocol(result, 'OSPF')
 
 
 if __name__ == '__main__':
