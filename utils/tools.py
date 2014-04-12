@@ -7,12 +7,23 @@ import re
 # GLOBAL VARIABLES
 # ----------------------------------------------------------------
 
-# regEX explinations in regex_notes.md
+# FOR IOS / ARISTA
 PROTOCOL_RE = re.compile(r'(?<=\s)(([a-zA-Z])|([a-zA-Z]\s[a-zA-Z]+[0-9]?)|([a-zA-Z]+?\*))(?=\s+[0-9]+\.)')
 PREFIX_RE = re.compile(r'(([0-9]{1,3}\.){3}([0-9]{1,3}){1}((/[0-9]{1,2})?)((?=\s?\[)|(?=\sis)))')
+# -----------------
+
+# FOR NX-OS DEVICES
+PREFIX_NX_RE = re.compile(r'([0-9]{1,3}\.){3}([0-9]){1,3}/[0-9]{1,2}(?=,)')
+# -----------------
+
+# AD_METRIC WORKS ON IOS/ARISTA AND NX-OS
 AD_METRIC_RE = re.compile(r'(?<=\[)([0-9]{1,3}/[0-9]{1,3})(?=\])')
-NEXTHOP_IP = re.compile(r'(?<=[a-zA-Z]{3}\s)(([0-9]{1,3}\.){3}[0-9]{1,3}(?=,))')
-NEXTHOP_INT_RE = re.compile(r'([a-zA-Z])+([0-9]{1,3})(/?)([0-9]{1,3})?(/?)([0-9]{1,3})?(/?)([0-9]{1,3})?$')
+# ---------------------------------------
+
+# NEXTHOP_IP WORKS ON IOS/ARISTA AND NX-OS
+NEXTHOP_IP = re.compile(r'((?<=[a-zA-Z]{3}\s)(([0-9]{1,3}\.){3}[0-9]{1,3})(?=,))')
+NEXTHOP_INT_RE = re.compile(r'(([a-zA-Z])+([0-9]{1,3})(/?)([0-9]{1,3})?(/?)([0-9]{1,3})?(/?)([0-9]{1,3})?$)|Null0')
+# ---------------------------------------
 
 
 SUFFIXES = {1000: ['KB', 'MB', 'GB', 'TB'],
@@ -169,8 +180,8 @@ class routingInfo(object):
                 next_hop = cls.getNextHop([p])
                 next_hop_int = cls.getNextHopInterface([p])
                 routes_dict[p_key[0]][prefix[0]] = {'ad_metric': ad_metric[0],
-                                                        'next_hop': next_hop[0],
-                                                        'next_hop_int': next_hop_int[0]
+                                                        'next_hop': next_hop,
+                                                        'next_hop_int': next_hop_int
                                             }
 
         return routes_dict
