@@ -110,7 +110,7 @@ def getFunction(args):
 
 def run(dev, args):
     function = args['function'] if args['function'] else args['cli']
-    vrf = args['option'] if args['option'] else None
+    vrf = args['vrf'] if args['vrf'] else None
     if function:
         if vrf:
             value = dev.run(function, vrf)
@@ -153,7 +153,6 @@ def main():
     parser.add_argument('-n', '--name', help='Enter the device\'s name. i.e -n sw1')
     parser.add_argument('-m', '--manufacturer', help='Enter the manufacturer to run on\
         i.e => -m arista')
-    parser.add_argument('--vrf', help='Enter VRF name')
     args = vars(parser.parse_args())
 
     # ----------------------------------------------------------------
@@ -167,36 +166,21 @@ def main():
     # ----------------------------------------------------------------
 
     # ----------------------------------------------------------------
-    # Interpreter simulation of __dir__ overload
-    # ----------------------------------------------------------------
-    # sw1 = netDevice()
-    # sw1.initialize('eos-sw01', 'arista')
-    # list_dir = dir(sw1)
-    # pp = pprint.PrettyPrinter(indent=4)
-    # pp.pprint(list_dir)
-    # prettyfying the printing of dir() call, just testing
-    # for i in list_dir:
-    #     for key, value in i.iteritems():
-    #         for j in range(0, len(value)):
-    #             print "{0}:\t{1}".format(key, value[j])
-    #
-    # ----------------------------------------------------------------
-
-    # ----------------------------------------------------------------
-    # testing output as if running from command-line
+    # testing output as if running from interpreter, by passing arguments directly
+    # and manually initializing the device
     # ----------------------------------------------------------------
     sw1 = netDevice()
     sw1.initialize('veos-m-01', 'arista', 'sw1')
     # # function = 'getHostname, getVersion, getPlatform, getCPU, getDetails'
     function = 'getRoutesDetail'
-    result = runInterpreter(sw1, [function, 'mgmt'])
+    result = runInterpreter(sw1, [function, 'default'])
     pp = pprint.PrettyPrinter(indent=2, width=60)
-    pp.pprint(formatResult(result, function))
+    # pp.pprint(formatResult(result, function))
     # # print('\n\n')
-    # if type(result) is not str and type(result) is not unicode:
-    #     pp.pprint(result)
-    # else:
-    #     print (result)
+    if type(result) is not str and type(result) is not unicode:
+        pp.pprint(result)
+    else:
+        print (result)
 
 
 if __name__ == '__main__':

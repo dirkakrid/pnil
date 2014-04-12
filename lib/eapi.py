@@ -249,7 +249,7 @@ class eapi(object):
     # ----------------------------------------------------------------
 
     @classmethod
-    def getRoutingProtocols(cls, search_list):
+    def getRoutesProtocol(cls, search_list):
         protocols = []
         for p in search_list:
             p_match = PROTOCOL_RE.search(p)
@@ -320,30 +320,26 @@ class eapi(object):
 
         # form the list of routes and get rid of unnecessary top lines
         routes_list = routes.split('\n')    
-        routes_list = routes_list[8:]
+        routes_list = routes_list[6:]
 
-        p_keys = self.getRoutingProtocols(routes_list)
-        protocols = {key: {} for key in p_keys}
+        p_keys = self.getRoutesProtocol(routes_list)
+        routes_dict = {key: {} for key in p_keys}
 
         for p in routes_list:
-            p_match = PROTOCOL_RE.search(p)
-            pr_match = PREFIX_RE.search(p)
+            p_key = self.getRoutesProtocol([p])
+            prefix = self.getRoutePrefixes([p])
 
-            if p_match and pr_match:
-                p_key = p_match.group(0)
-                prefix = pr_match.group(0)
+            # if p_match and pr_match:
+            if p_key and prefix:
                 ad_metric = self.getADMetric([p])
                 next_hop = self.getNextHop([p])
                 next_hop_int = self.getNextHopInterface([p])
-                protocols[p_key][prefix] = {'ad_metric': ad_metric[0],
+                routes_dict[p_key[0]][prefix[0]] = {'ad_metric': ad_metric[0],
                                                         'next_hop': next_hop[0],
-                                                        'next_intf': next_hop_int[0]
+                                                        'next_hop_int': next_hop_int[0]
                                             }
 
-        route_info = []
-        route_info.append(protocols)
-
-        return route_info
+        return routes_dict
 
     # ----------------------------------------------------------------
 
