@@ -19,7 +19,7 @@ import re
 
 # regEX explinations in regex_notes.md
 PROTOCOL_RE = re.compile(r'(?<=\s)(([a-zA-Z])|([a-zA-Z]\s[a-zA-Z]+[0-9]?)|([a-zA-Z]+?\*))(?=\s+[0-9]+\.)')
-PREFIX_RE = re.compile(r'(([0-9]{1,3}\.){3}([0-9]{1,3}){1}(/[0-9]{1,2})|([0-9]{1,3}\.){3}([0-9]{1,3}){1}(?=\s?\[))')
+PREFIX_RE = re.compile(r'(([0-9]{1,3}\.){3}([0-9]{1,3}){1}((/[0-9]{1,2})?)((?=\s?\[)|(?=\sis)))')
 AD_METRIC_RE = re.compile(r'(?<=\[)([0-9]{1,3}/[0-9]{1,3})(?=\])')
 NEXTHOP_IP = re.compile(r'(?<=[a-zA-Z]{3}\s)(([0-9]{1,3}\.){3}[0-9]{1,3}(?=,))')
 NEXTHOP_INT_RE = re.compile(r'([a-zA-Z])+([0-9]{1,3})(/?)([0-9]{1,3})?(/?)([0-9]{1,3})?(/?)([0-9]{1,3})?$')
