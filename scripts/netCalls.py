@@ -5,7 +5,7 @@
 #----------------------------------------------------------------
 
 from pnil.lib.netControl import netDevice
-from pnil.utils.tools import utils, routingInfo
+from pnil.utils.tools import utils, routingInfo, printRouting
 import pprint
 
 #----------------------------------------------------------------
@@ -33,47 +33,6 @@ def showConnectedIntf(_status):
             status_info.update({int_key: [int_status['linkStatus'], int_status['description']]})
 
     return status_info
-
-def printConnected(result):
-    print ('# ' + '-'*110)
-    print ('# CONNECTED ROUTES')
-    print ('# ' + '-'*110)
-    for prefix, values in result['C'].iteritems():
-        print ('# Prefix: {0}\tAD/Metric: {1}\tNext-Hop:{2}\tNext-Hop-Interface: {3}\
-                    '.format(prefix, values['ad_metric'], values['next_hop'], values['next_hop_int']))
-
-    print ('# ' + '-'*110)
-
-def printStatics(result):
-    print ('# ' + '-'*110)
-    print ('# STATIC ROUTES')
-    print ('# ' + '-'*110)
-    for prefix, values in result['S'].iteritems():
-        print ('# Prefix: {0}\tAD/Metric: {1}\tNext-Hop:{2}\tNext-Hop-Interface: {3}\
-                    '.format(prefix, values['ad_metric'], values['next_hop'], values['next_hop_int']))
-
-    print ('# ' + '-'*110)
-
-def printOSPF(result):
-    ospf_keys = ['O', 'O IA', 'O E2', 'O E1', 'O N1', 'O N2']
-    print ('# ' + '-'*110)
-    print ('# OSPF ROUTES')
-    print ('# ' + '-'*110)
-    for key in ospf_keys:
-        if key in result.keys():
-            for prefix, values in result[key].iteritems():
-                print ('# Prefix: {0}\tAD/Metric: {1}\tNext-Hop:{2}\tNext-Hop-Interface: {3}\
-                    '.format(prefix, values['ad_metric'], values['next_hop'], values['next_hop_int']))
-
-    print ('# ' + '-'*110)
-
-def findByProtocol(result, protocol='S'):
-    if protocol.lower() == 'c' or protocol.lower() == 'connected':
-        printConnected(result)
-    elif protocol.lower() == 's' or protocol.lower() == 'static':
-        printStatics(result)
-    elif protocol.lower() == 'o' or protocol.lower() == 'ospf':
-        printOSPF(result)
 
 #----------------------------------------------------------------
 
@@ -138,12 +97,19 @@ def main():
     dev = build(args)
     result = run(dev, args)
 
-    pp = pprint.PrettyPrinter(indent=2, width=60)
-    if type(result) is not str and type(result) is not unicode:
-        pp.pprint(result)
-    else:
-        print (result)
-    #
+    # pp = pprint.PrettyPrinter(indent=2, width=60)
+    # if type(result) is not str and type(result) is not unicode:
+    #     pp.pprint(result)
+    # else:
+    #     print (result)
+
+    print ('# ' + '-'*110)
+    print ('# PRINTING ARISTA ROUTES')
+    print ('# ' + '-'*110)
+    printRouting.findByProtocol(result, 'Connected')
+    printRouting.findByProtocol(result, 'Static')
+    printRouting.findByProtocol(result, 'OSPF')
+
     # ----------------------------------------------------------------
 
     # ----------------------------------------------------------------
@@ -205,10 +171,16 @@ def main():
         B     192.168.33.0/24 [200/0] via 10.16.0.2, 5d14h'''
     cisco_list = cisco_str.split('\n')
     cisco_routes = routingInfo.getRoutesDetail(cisco_list)
-    if type(cisco_routes) is not str and type(cisco_routes) is not unicode:
-        pp.pprint(cisco_routes)
-    else:
-        print (cisco_routes)
+    # if type(cisco_routes) is not str and type(cisco_routes) is not unicode:
+    #     pp.pprint(cisco_routes)
+    # else:
+    #     print (cisco_routes)
+    print ('# ' + '-'*110)
+    print ('# PRINTING CISCO ROUTES')
+    print ('# ' + '-'*110)
+    printRouting.findByProtocol(cisco_routes, 'Connected')
+    printRouting.findByProtocol(cisco_routes, 'Static')
+    printRouting.findByProtocol(cisco_routes, 'OSPF')
 
 
 if __name__ == '__main__':

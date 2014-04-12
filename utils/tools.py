@@ -176,3 +176,54 @@ class routingInfo(object):
         return routes_dict
 
     # ----------------------------------------------------------------
+
+
+class printRouting(object):
+    """docstring for printRouting"""
+    def __init__(self):
+        super(printRouting, self).__init__()
+        
+    @classmethod
+    def printConnected(cls, result):
+        print ('# ' + '-'*110)
+        print ('# CONNECTED ROUTES')
+        print ('# ' + '-'*110)
+        for prefix, values in result['C'].iteritems():
+            print ('# Prefix: {0}\tAD/Metric: {1}\tNext-Hop:{2}\tNext-Hop-Interface: {3}\
+                        '.format(prefix, values['ad_metric'], values['next_hop'], values['next_hop_int']))
+
+    print ('# ' + '-'*110)
+
+    @classmethod
+    def printStatics(cls, result):
+        print ('# ' + '-'*110)
+        print ('# STATIC ROUTES')
+        print ('# ' + '-'*110)
+        for prefix, values in result['S'].iteritems():
+            print ('# Prefix: {0}\tAD/Metric: {1}\tNext-Hop:{2}\tNext-Hop-Interface: {3}\
+                        '.format(prefix, values['ad_metric'], values['next_hop'], values['next_hop_int']))
+
+        print ('# ' + '-'*110)
+
+    @classmethod
+    def printOSPF(cls, result):
+        ospf_keys = ['O', 'O IA', 'O E2', 'O E1', 'O N1', 'O N2']
+        print ('# ' + '-'*110)
+        print ('# OSPF ROUTES')
+        print ('# ' + '-'*110)
+        for key in ospf_keys:
+            if key in result.keys():
+                for prefix, values in result[key].iteritems():
+                    print ('# Prefix: {0}\tAD/Metric: {1}\tNext-Hop:{2}\tNext-Hop-Interface: {3}\
+                        '.format(prefix, values['ad_metric'], values['next_hop'], values['next_hop_int']))
+
+        print ('# ' + '-'*110)
+
+    @classmethod
+    def findByProtocol(cls, result, protocol='S'):
+        if protocol.lower() == 'c' or protocol.lower() == 'connected':
+            cls.printConnected(result)
+        elif protocol.lower() == 's' or protocol.lower() == 'static':
+            cls.printStatics(result)
+        elif protocol.lower() == 'o' or protocol.lower() == 'ospf':
+            cls.printOSPF(result)
