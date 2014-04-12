@@ -298,7 +298,7 @@ class eapi(object):
             if n_match:
                 next_hop.append(n_match.group(0))
             else:
-                next_hop.append('directly connected')
+                next_hop.append('connected')
 
         return next_hop
 

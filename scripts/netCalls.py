@@ -34,57 +34,48 @@ def showConnectedIntf(_status):
 
     return status_info
 
+def printConnected(result):
+    print ('# ' + '-'*110)
+    print ('# CONNECTED ROUTES')
+    print ('# ' + '-'*110)
+    for prefix, values in result['C'].iteritems():
+        print ('# Prefix: {0}\tAD/Metric: {1}\tNext-Hop:{2}\tNext-Hop-Interface: {3}\
+                    '.format(prefix, values['ad_metric'], values['next_hop'], values['next_hop_int']))
+
+    print ('# ' + '-'*110)
+
+def printStatics(result):
+    print ('# ' + '-'*110)
+    print ('# STATIC ROUTES')
+    print ('# ' + '-'*110)
+    for prefix, values in result['S'].iteritems():
+        print ('# Prefix: {0}\tAD/Metric: {1}\tNext-Hop:{2}\tNext-Hop-Interface: {3}\
+                    '.format(prefix, values['ad_metric'], values['next_hop'], values['next_hop_int']))
+
+    print ('# ' + '-'*110)
+
+def printOSPF(result):
+    ospf_keys = ['O', 'O IA', 'O E2', 'O E1', 'O N1', 'O N2']
+    print ('# ' + '-'*110)
+    print ('# OSPF ROUTES')
+    print ('# ' + '-'*110)
+    for key in ospf_keys:
+        if key in result.keys():
+            for prefix, values in result[key].iteritems():
+                print ('# Prefix: {0}\tAD/Metric: {1}\tNext-Hop:{2}\tNext-Hop-Interface: {3}\
+                    '.format(prefix, values['ad_metric'], values['next_hop'], values['next_hop_int']))
+
+    print ('# ' + '-'*110)
+
+def findByProtocol(result, protocol='S'):
+    if protocol.lower() == 'c' or protocol.lower() == 'connected':
+        printConnected(result)
+    elif protocol.lower() == 's' or protocol.lower() == 'static':
+        printStatics(result)
+    elif protocol.lower() == 'o' or protocol.lower() == 'ospf':
+        printOSPF(result)
+
 #----------------------------------------------------------------
-
-
-def formatResult(result, func):
-    '''
-    Prints the result of the calling functions to screen with varying different types. 
-    1) Checks if result is a list then calls the formatList() function.
-    2) If the result is a dict, it calls  formatDict() function .
-    3) if neigther, just simply prints out the result.
-    '''
-
-    function = func.split(',')
-
-    if type(result) is list:
-        return formatList(result, function)
-    elif type(result) is dict:
-        return formatDict(result)
-    else:
-        return formatSingle(result, function)
-
-def formatSingle(result, func):
-    new_result = {}
-    new_result.update({func[0]: result})
-    return new_result
-
-def formatList(result, func):
-
-    counter = 0
-    key_counter = 1
-    new_result = {}
-    for item in result:
-        if type(item) is dict:
-            for key, value in item.iteritems():
-                if key in new_result:
-                    new_result.update({key + '_' + str(key_counter): value})
-                    key_counter += 1
-                else:
-                    new_result.update({key: value})
-        else:
-            key = func[counter].lstrip().rstrip()
-            new_result.update({key: item})
-            counter += 1
-
-    return new_result
-
-def formatDict(result):
-    new_result = result
-    # for key, value in result.iteritems():
-    #     new_result[key] = value
-
-    return new_result
 
 # ----------------------------------------------------------------
 
@@ -177,10 +168,13 @@ def main():
     pp = pprint.PrettyPrinter(indent=2, width=60)
     # pp.pprint(formatResult(result, function))
     # # print('\n\n')
-    if type(result) is not str and type(result) is not unicode:
-        pp.pprint(result)
-    else:
-        print (result)
+    # if type(result) is not str and type(result) is not unicode:
+    #     pp.pprint(result)
+    # else:
+    #     print (result)
+    findByProtocol(result, 'Connected')
+    findByProtocol(result, 'Static')
+    findByProtocol(result, 'OSPF')
 
 
 if __name__ == '__main__':
