@@ -94,7 +94,7 @@ DATASTRUCTURE_VIEW = False if PRETTY else True
 ARISTA = True
 CISCO_IOS = False
 ARGUMENTS = True
-INTERPRETER_SIM = False
+INTERPRETER_SIM = False if ARGUMENTS else True
 # -------------------
 
 def printRoutes(result, manufacturer='Arista'):
