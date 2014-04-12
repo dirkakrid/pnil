@@ -267,6 +267,9 @@ class eapi(object):
     def getRoutePrefixes(cls, search_list):
         prefixes = []
         for p in search_list:
+            # The test for protocol first in the prefix line is necessary
+            # the regEX matching the prefix, sometimes matches an un-necessary line
+            # such as 10.0.0.0/8 is variably subneted, under this line, are the actual prefixes
             protocol = cls.getRoutesProtocol([p])
             if protocol:
                 pr_match = PREFIX_RE.search(p)
