@@ -185,50 +185,61 @@ class printRouting(object):
         
     @classmethod
     def printConnected(cls, result):
-        print ('# ' + '-'*110)
+        print('\n')
         print ('# CONNECTED ROUTES')
-        print ('# ' + '-'*110)
+        print('#' + '*' * 80)
         for prefix, values in result['C'].iteritems():
-            print ('# Prefix: {0}\tAD/Metric: {1}\tNext-Hop:{2}\tNext-Hop-Interface: {3}\
-                        '.format(prefix, values['ad_metric'], values['next_hop'], values['next_hop_int']))
+            prefix_tab = '\t\t' if len(prefix) <= 13 else '\t'
+            next_tab = '\t\t' if len(values['next_hop']) <= 13 else '\t'
+            print ('# Prefix: {0}{1}AD/Metric: {2}\tNext-Hop: {3}{4}Next-Hop-Interface: {5}\
+                        '.format(prefix, prefix_tab, values['ad_metric'], values['next_hop'],\
+                         next_tab, values['next_hop_int']))
 
-    print ('# ' + '-'*110)
+    print('\n')
 
     @classmethod
     def printStatics(cls, result):
-        print ('# ' + '-'*110)
+        print('\n')
         print ('# STATIC ROUTES')
-        print ('# ' + '-'*110)
+        print('#' + '*' * 80)
         for prefix, values in result['S'].iteritems():
-            print ('# Prefix: {0}\tAD/Metric: {1}\tNext-Hop:{2}\tNext-Hop-Interface: {3}\
-                        '.format(prefix, values['ad_metric'], values['next_hop'], values['next_hop_int']))
+            prefix_tab = '\t\t' if len(prefix) <= 13 else '\t'
+            next_tab = '\t\t' if len(values['next_hop']) <= 13 else '\t'
+            print ('# Prefix: {0}{1}AD/Metric: {2}\tNext-Hop: {3}{4}Next-Hop-Interface: {5}\
+                        '.format(prefix, prefix_tab, values['ad_metric'], values['next_hop'],\
+                         next_tab, values['next_hop_int']))
 
-        print ('# ' + '-'*110)
+        print('\n')
 
     @classmethod
     def printOSPF(cls, result):
         ospf_keys = ['O', 'O IA', 'O E2', 'O E1', 'O N1', 'O N2']
-        print ('# ' + '-'*110)
+        print('\n')
         print ('# OSPF ROUTES')
-        print ('# ' + '-'*110)
+        print('#' + '*' * 80)
         for key in ospf_keys:
             if key in result.keys():
                 for prefix, values in result[key].iteritems():
-                    print ('# Prefix: {0}\tAD/Metric: {1}\tNext-Hop:{2}\tNext-Hop-Interface: {3}\
-                        '.format(prefix, values['ad_metric'], values['next_hop'], values['next_hop_int']))
+                    prefix_tab = '\t\t' if len(prefix) <= 13 else '\t'
+                    next_tab = '\t\t' if len(values['next_hop']) <= 13 else '\t'
+                    print ('# Prefix: {0}{1}AD/Metric: {2}\tNext-Hop: {3}{4}Next-Hop-Interface: {5}\
+                        '.format(prefix, prefix_tab, values['ad_metric'],\
+                            values['next_hop'], next_tab, values['next_hop_int']))
 
-        print ('# ' + '-'*110)
+        print('\n')
 
     @classmethod
     def printBGP(cls, result):
-        print ('# ' + '-'*110)
+        print('\n')
         print ('# BGP ROUTES')
-        print ('# ' + '-'*110)
+        print('#' + '*' * 80)
         for prefix, values in result['B'].iteritems():
-            print ('# Prefix: {0}\tAD/Metric: {1}\tNext-Hop:{2}\tNext-Hop-Interface: {3}\
-                        '.format(prefix, values['ad_metric'], values['next_hop'], values['next_hop_int']))
-
-        print ('# ' + '-'*110)
+            prefix_tab = '\t\t' if len(prefix) <= 13 else '\t'
+            next_tab = '\t\t' if len(values['next_hop']) <= 13 else '\t'
+            print ('# Prefix: {0}{1}AD/Metric: {2}\tNext-Hop: {3}{4}Next-Hop-Interface: {5}\
+                        '.format(prefix, prefix_tab, values['ad_metric'], values['next_hop'],\
+                         next_tab, values['next_hop_int']))
+        print('\n')
 
     @classmethod
     def findByProtocol(cls, result, protocol='S'):
