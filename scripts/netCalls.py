@@ -170,11 +170,12 @@ def main():
         B     192.168.31.0/24 [200/0] via 10.16.0.2, 5d14h
         B     192.168.33.0/24 [200/0] via 10.16.0.2, 5d14h'''
     cisco_list = cisco_str.split('\n')
-    cisco_routes = routingInfo.getRoutesDetail(cisco_list)
+    cisco_routes = routingInfo.getRoutes(cisco_list)
     # if type(cisco_routes) is not str and type(cisco_routes) is not unicode:
     #     pp.pprint(cisco_routes)
     # else:
     #     print (cisco_routes)
+    print('\n'*3)
     print ('# ' + '-'*110)
     print ('# PRINTING CISCO ROUTES')
     print ('# ' + '-'*110)

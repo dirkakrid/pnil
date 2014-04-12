@@ -155,7 +155,7 @@ class routingInfo(object):
         return next_hop_int
 
     @classmethod
-    def getRoutesDetail(cls, routes_list):
+    def getRoutes(cls, routes_list):
         p_keys = cls.getRoutesProtocol(routes_list)
         routes_dict = {key: {} for key in p_keys}
 

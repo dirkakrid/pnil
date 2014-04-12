@@ -243,7 +243,7 @@ class eapi(object):
     # FIND ROUTING INFORMATION
     # ----------------------------------------------------------------
 
-    def getRoutesDetail(self, vrf=None):
+    def getRoutes(self, vrf=None):
         if vrf:
             routes = self._runCmdText(['show ip route vrf {0}'.format(vrf)])[0]['output']
         else:
@@ -253,7 +253,7 @@ class eapi(object):
         routes_list = routes.split('\n')    
         routes_list = routes_list[6:]
         
-        routes_dict = routingInfo.getRoutesDetail(routes_list)
+        routes_dict = routingInfo.getRoutes(routes_list)
 
         return routes_dict
 
