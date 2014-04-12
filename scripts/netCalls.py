@@ -5,7 +5,7 @@
 #----------------------------------------------------------------
 
 from pnil.lib.netControl import netDevice
-import argparse
+from pnil.utils import tools
 import pprint
 
 #----------------------------------------------------------------
@@ -130,21 +130,7 @@ def main():
     Ran only if program called as script
     '''
 
-    parser = argparse.ArgumentParser(description='\
-        input -f [function] -i [ipAddress] \
-        -u [username] -p [password]')
-
-    parser.add_argument('-f', '--function', help='i.e. -f getHostname, getVersion...')
-    parser.add_argument('-c', '--cli', help='i.e. pass a raw cli command')
-    parser.add_argument('--vrf', help='Pass a VRF name to the function/cli')
-    parser.add_argument('-i', '--ip_address', help='i.e. -i "192.168.31.21"')
-    parser.add_argument('-d', '--dns_name', help='i.e. -h sw01.domain.com')
-    parser.add_argument('-u', '--username', help='Enter username of device')
-    parser.add_argument('-p', '--password', help='Enter password for username')
-    parser.add_argument('-n', '--name', help='Enter the device\'s name. i.e -n sw1')
-    parser.add_argument('-m', '--manufacturer', help='Enter the manufacturer to run on\
-        i.e => -m arista')
-    args = vars(parser.parse_args())
+    args = tools.initArgs()
 
     # ----------------------------------------------------------------
     # For running with with command-line arguments
@@ -177,6 +163,17 @@ def main():
     # findByProtocol(result, 'Connected')
     # findByProtocol(result, 'Static')
     # findByProtocol(result, 'OSPF')
+
+    # ----------------------------------------------------------------
+    # Testing Paramiko with a Cisco device
+    # ----------------------------------------------------------------
+    # import paramiko
+    # rtr01 = paramiko.SSHClient()
+    # rtr01.load_system_host_keys()
+    # rtr01.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    # rtr01.connect('rtr01', username='cisco', password='cisco')
+    # stdin, stdout, stderr = rtr01.exec_command('show ip route')
+    # print(stdout.readlines())
 
 
 if __name__ == '__main__':
