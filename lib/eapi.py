@@ -266,9 +266,8 @@ class eapi(object):
     @classmethod
     def getRoutePrefixes(cls, search_list):
         prefixes = []
-        protocol = []
         for p in search_list:
-            protocol = PROTOCOL_RE.search(p)
+            protocol = cls.getRoutesProtocol([p])
             if protocol:
                 pr_match = PREFIX_RE.search(p)
                 if pr_match:
