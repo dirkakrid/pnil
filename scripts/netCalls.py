@@ -101,17 +101,17 @@ def printRoutes(result, manufacturer='Arista'):
     pp = pprint.PrettyPrinter(indent=2, width=60)
     if DATASTRUCTURE_VIEW:
         if type(result) is not str and type(result) is not unicode:
-            print ('\n' * 2)
+            print ('\n')
             print ('# ' + '-' * 80)
             print ('# DATASTRUCTURE REPRESENTATION {0} ROUTES'.format(manufacturer.upper()))
             print ('# ' + '-' * 80)
             pp.pprint(result)
         else:
-            print ('\n' * 2)
+            print ('\n')
             print (result)
 
     if PRETTY:
-        print('\n'*3)
+        print('\n'*2)
         print ('# ' + '-' * 80)
         print ('# PRETTY PRINTING ARISTA ROUTES')
         print ('# ' + '-' * 80)
