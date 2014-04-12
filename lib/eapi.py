@@ -316,14 +316,16 @@ class eapi(object):
         if vrf:
             routes = self._runCmdText(['show ip route vrf {0}'.format(vrf)])[0]['output']
         else:
-            routes = self._runCmdText(['show ip route'])[0]['output'].split('\n')
+            routes = self._runCmdText(['show ip route'])[0]['output']
 
-        routes = routes[9:-2]
+        # form the list of routes and get rid of unnecessary top lines
+        routes_list = routes.split('\n')    
+        routes_list = routes_list[8:]
 
-        p_keys = self.getRoutingProtocols(routes)
+        p_keys = self.getRoutingProtocols(routes_list)
         protocols = {key: {} for key in p_keys}
 
-        for p in routes:
+        for p in routes_list:
             p_match = PROTOCOL_RE.search(p)
             pr_match = PREFIX_RE.search(p)
 
@@ -338,8 +340,8 @@ class eapi(object):
                                                         'next_intf': next_hop_int[0]
                                             }
 
-        route_info = {}
-        route_info.update(protocols)
+        route_info = []
+        route_info.append(protocols)
 
         return route_info
 

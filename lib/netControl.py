@@ -114,7 +114,7 @@ class netDevice(object):
 
         return new_calls
 
-    def run(self, func=None):
+    def run(self, func=None, vrf=None):
         '''
         Checks implemented_methods constant and tests if library has called method.
         otherwise terminates with mothod not implemented.
@@ -141,6 +141,9 @@ class netDevice(object):
                 if func_call[0] not in implemented_methods:
                     self.displayError()
                 else:
-                    result = getattr(self._net_device, func_call[0])()
+                    if vrf:
+                        result = getattr(self._net_device, func_call[0])(vrf)
+                    else:
+                        result = getattr(self._net_device, func_call[0])()
 
             return result

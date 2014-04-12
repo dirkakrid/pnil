@@ -105,9 +105,30 @@ def build(args):
 
     return net_dev
 
-def run(dev, function):
+def getFunction(args):
+    return args['function'] if args['function'] else args['cli']
+
+def run(dev, args):
+    function = args['function'] if args['function'] else args['cli']
+    vrf = args['option'] if args['option'] else None
     if function:
-        value = dev.run(function)
+        if vrf:
+            value = dev.run(function, vrf)
+        else:
+            value = dev.run(function)
+    else:
+        value = dev.displayError()
+
+    return value
+
+def runInterpreter(dev, args):
+    function = args[0]
+    vrf = args[1]
+    if function:
+        if vrf:
+            value = dev.run(function, vrf)
+        else:
+            value = dev.run(function)
     else:
         value = dev.displayError()
 
@@ -123,7 +144,8 @@ def main():
         -u [username] -p [password]')
 
     parser.add_argument('-f', '--function', help='i.e. -f getHostname, getVersion...')
-    parser.add_argument('-c', '--cli', help='i.e. same as -f, for redundancy')
+    parser.add_argument('-c', '--cli', help='i.e. pass a raw cli command')
+    parser.add_argument('--vrf', help='Pass a VRF name to the function/cli')
     parser.add_argument('-i', '--ip_address', help='i.e. -i "192.168.31.21"')
     parser.add_argument('-d', '--dns_name', help='i.e. -h sw01.domain.com')
     parser.add_argument('-u', '--username', help='Enter username of device')
@@ -132,18 +154,15 @@ def main():
     parser.add_argument('-m', '--manufacturer', help='Enter the manufacturer to run on\
         i.e => -m arista')
     parser.add_argument('--vrf', help='Enter VRF name')
-    _args = vars(parser.parse_args())
+    args = vars(parser.parse_args())
 
     # ----------------------------------------------------------------
     # For running with with command-line arguments
     # ----------------------------------------------------------------
-    # dev = build(_args)
-    # sets the function based on the command-line argument passed -f or -c
-    # function = _args['function'] if _args['function'] else _args['cli']
-    # result = run(dev, function)
+    # dev = build(args)
+    # result = run(dev, args)
     # pp = pprint.PrettyPrinter(indent=2)
-    # pp.pprint(formatResult(result, function))
-    # print (formatResult(result, function))
+    # pp.pprint(formatResult(result, getFunction(args)))
     #
     # ----------------------------------------------------------------
 
@@ -168,17 +187,16 @@ def main():
     # ----------------------------------------------------------------
     sw1 = netDevice()
     sw1.initialize('veos-m-01', 'arista', 'sw1')
-    # function = 'getHostname, getVersion, getPlatform, getCPU, getDetails'
+    # # function = 'getHostname, getVersion, getPlatform, getCPU, getDetails'
     function = 'getRoutesDetail'
-    result = run(sw1, function)
-    # result2 = run(sw2, function)
+    result = runInterpreter(sw1, [function, 'mgmt'])
     pp = pprint.PrettyPrinter(indent=2, width=60)
-    # pp.pprint(formatResult(result, function))
-    # print('\n\n')
-    if type(result) is not str and type(result) is not unicode:
-        pp.pprint(result)
-    else:
-        print (result)
+    pp.pprint(formatResult(result, function))
+    # # print('\n\n')
+    # if type(result) is not str and type(result) is not unicode:
+    #     pp.pprint(result)
+    # else:
+    #     print (result)
 
 
 if __name__ == '__main__':
