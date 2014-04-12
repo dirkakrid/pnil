@@ -220,6 +220,17 @@ class printRouting(object):
         print ('# ' + '-'*110)
 
     @classmethod
+    def printBGP(cls, result):
+        print ('# ' + '-'*110)
+        print ('# BGP ROUTES')
+        print ('# ' + '-'*110)
+        for prefix, values in result['B'].iteritems():
+            print ('# Prefix: {0}\tAD/Metric: {1}\tNext-Hop:{2}\tNext-Hop-Interface: {3}\
+                        '.format(prefix, values['ad_metric'], values['next_hop'], values['next_hop_int']))
+
+        print ('# ' + '-'*110)
+
+    @classmethod
     def findByProtocol(cls, result, protocol='S'):
         if protocol.lower() == 'c' or protocol.lower() == 'connected':
             cls.printConnected(result)
@@ -227,3 +238,5 @@ class printRouting(object):
             cls.printStatics(result)
         elif protocol.lower() == 'o' or protocol.lower() == 'ospf':
             cls.printOSPF(result)
+        elif protocol.lower() == 'b' or protocol.lower() == 'bgp':
+            cls.printBGP(result)

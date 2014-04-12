@@ -181,6 +181,7 @@ def main():
     printRouting.findByProtocol(cisco_routes, 'Connected')
     printRouting.findByProtocol(cisco_routes, 'Static')
     printRouting.findByProtocol(cisco_routes, 'OSPF')
+    printRouting.findByProtocol(cisco_routes, 'BGP')
 
 
 if __name__ == '__main__':
