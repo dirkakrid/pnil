@@ -5,7 +5,9 @@
 #----------------------------------------------------------------
 
 from pnil.lib.netControl import netDevice
-from pnil.utils.tools import utils, routingInfo, printRouting
+from pnil.utils.tools import initArgs
+from pnil.utils.findRoutes import standardRoutes
+import pnil.utils.printRoutes
 import pprint
 
 #----------------------------------------------------------------
@@ -68,42 +70,29 @@ ARGUMENTS = True
 INTERPRETER_SIM = False if ARGUMENTS else True
 # -------------------
 
-def printRoutes(result, manufacturer='Arista'):
+def printResult(result, manufacturer='Arista'):
     pp = pprint.PrettyPrinter(indent=2, width=60)
     if DATASTRUCTURE_VIEW:
         if type(result) is not str and type(result) is not unicode:
-            print ('\n')
             print ('# ' + '-' * 80)
             print ('# DATASTRUCTURE REPRESENTATION {0} ROUTES'.format(manufacturer.upper()))
             print ('# ' + '-' * 80)
             pp.pprint(result)
         else:
-            print ('\n')
             print (result)
 
     if PRETTY:
-        print('\n'*2)
         print ('# ' + '-' * 80)
-        print ('# PRETTY PRINTING ARISTA ROUTES')
+        print ('# PRETTY PRINTING {0} ROUTES'.format(manufacturer.upper()))
         print ('# ' + '-' * 80)
-        printRouting.findByProtocol(result, ['C', 'OSPF', 'STATIC', 'BGP'])
-
-def printResult(result):
-    pp = pprint.PrettyPrinter(indent=2, width=60)
-    if DATASTRUCTURE_VIEW:
-        if type(result) is not str and type(result) is not unicode:
-            print ('# ' + '-' * 80)
-            pp.pprint(result)
-        else:
-            print ('# ' + '-' * 80)
-            print (result)
+        printRoutes.printByProtocol(result, ['C', 'OSPF', 'STATIC', 'BGP'])
 
 def main():
     '''
     Ran only if program called as script
     '''
     if ARISTA and ARGUMENTS:
-        args = utils.initArgs()
+        args = initArgs()
         function = args['function'] if args['function'] else None
 
         sw1 = build(args)
@@ -120,7 +109,7 @@ def main():
         function = 'getRoutes'
         result = sw1.run(function)
 
-        printRoutes(result, manufacturer='Arista')
+        printResult(result)
 
 
     # Till I figure out the paramiko exception, raw data input
@@ -153,9 +142,9 @@ def main():
             B     192.168.31.0/24 [200/0] via 10.16.0.2, 5d14h
             B     192.168.33.0/24 [200/0] via 10.16.0.2, 5d14h'''
         # cisco_list = cisco_str.split('\n')
-        result = routingInfo.getRoutes(cisco_str)
+        result = standardRoutes.getRoutes(cisco_str)
 
-        printRoutes(result, manufacturer='Arista')
+        printResult(result)
 
 
 if __name__ == '__main__':

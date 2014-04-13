@@ -11,7 +11,7 @@
 # ----------------------------------------------------------------
 
 from jsonrpclib import Server
-from pnil.utils.tools import routingInfo
+from pnil.utils.findRoutes import standardRoutes
 import re
 
 # ----------------------------------------------------------------
@@ -43,7 +43,8 @@ class eapi(object):
         self._connected = False
 
     def __str__(self):
-        rtr_str = 'name:\t\t{0}\nhost:\t\t{1}\nfunction:\t{2}'.format(self._name, self._host)
+        rtr_str = 'name:\t\t{0}\nhost:\t\t{1}\nfunction:\t{2}\
+        '.format(self._name, self._host)
         return rtr_str
 
     # ----------------------------------------------------------------
@@ -52,7 +53,8 @@ class eapi(object):
 
     def _connectToSwitch(self):
         try:
-            return Server('https://{0}:{1}@{2}/command-api'.format(self._user, self._pass, self._host))
+            return Server('https://{0}:{1}@{2}/command-api\
+                '.format(self._user, self._pass, self._host))
         except Exception as e:
             print ('There was an error trying to connect: {}'.format(e))
 
@@ -256,7 +258,7 @@ class eapi(object):
         else:
             routes = self._runCmdText(['show ip route'])[0]['output']
         
-        routes_dict = routingInfo.getRoutes(routes)
+        routes_dict = standardRoutes.getRoutes(routes)
 
         return routes_dict
 
