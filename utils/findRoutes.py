@@ -108,7 +108,7 @@ class standardRoutes(object):
     def createRoutesList(cls, routes):
         # form the list of routes and get rid of unnecessary top lines
         routes_list = routes.splitlines()
-        # routes_list = routes_list[6:]
+        routes_list = routes_list[6:]
 
         prev_line = None
         position = 0
