@@ -140,15 +140,15 @@ class standardRoutes(object):
         p_keys = cls.getRoutesProtocol(routes_list)
         routes_dict = {key: {} for key in p_keys}
 
-        for p in routes_list:
-            p_key = cls.getRoutesProtocol([p])
-            prefix = cls.getRoutePrefixes([p])
+        for line in routes_list:
+            p_key = cls.getRoutesProtocol([line])
+            prefix = cls.getRoutePrefixes([line])
 
             # if p_match and pr_match:
             if p_key and prefix:
-                ad_metric = cls.getADMetric([p])
-                next_hop = cls.getNextHop([p])
-                next_hop_int = cls.getNextHopInterface([p])
+                ad_metric = cls.getADMetric([line])
+                next_hop = cls.getNextHop([line])
+                next_hop_int = cls.getNextHopInterface([line])
                 routes_dict[p_key[0]][prefix[0]] = {'ad_metric': ad_metric[0],
                                                         'next_hop': next_hop,
                                                         'next_hop_int': next_hop_int
