@@ -255,12 +255,8 @@ class eapi(object):
                 '.format(args['options'])])[0]['output']
         else:
             routes = self._runCmdText(['show ip route'])[0]['output']
-
-        # form the list of routes and get rid of unnecessary top lines
-        routes_list = routes.split('\n')    
-        routes_list = routes_list[6:]
         
-        routes_dict = routingInfo.getRoutes(routes_list)
+        routes_dict = routingInfo.getRoutes(routes)
 
         return routes_dict
 

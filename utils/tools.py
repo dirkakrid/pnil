@@ -2,6 +2,7 @@
 
 import argparse
 import re
+import shlex
 
 # ----------------------------------------------------------------
 # GLOBAL VARIABLES
@@ -22,7 +23,7 @@ AD_METRIC_RE = re.compile(r'(?<=\[)([0-9]{1,3}/[0-9]{1,3})(?=\])')
 
 # NEXTHOP_IP WORKS ON IOS/ARISTA AND NX-OS
 NEXTHOP_IP = re.compile(r'((?<=[a-zA-Z]{3}\s)(([0-9]{1,3}\.){3}[0-9]{1,3})(?=,))')
-NEXTHOP_INT_RE = re.compile(r'(([a-zA-Z])+([0-9]{1,3})(/?)([0-9]{1,3})?(/?)([0-9]{1,3})?(/?)([0-9]{1,3})?$)|Null0')
+NEXTHOP_INT_RE = re.compile(r'(?<=\d,\s)(([a-zA-Z])+([0-9]{1,3})(/?)([0-9]{1,3})?(/?)([0-9]{1,3})?(/?)([0-9]{1,3})?)|Null0')
 # ---------------------------------------
 
 
@@ -147,9 +148,11 @@ class routingInfo(object):
     def getNextHop(cls, search_list):
         next_hop = []
         for n in search_list:
-            n_match = NEXTHOP_IP.search(n)
+            n_match = NEXTHOP_IP.finditer(n)
+
             if n_match:
-                next_hop.append(n_match.group(0))
+                for match in n_match:
+                    next_hop.append(match.group())
             else:
                 next_hop.append('connected')
 
@@ -159,16 +162,53 @@ class routingInfo(object):
     def getNextHopInterface(cls, search_list):
         next_hop_int = []
         for n in search_list:
-            n_match = NEXTHOP_INT_RE.search(n)
+            n_match = NEXTHOP_INT_RE.finditer(n)
+
             if n_match:
-                next_hop_int.append(n_match.group(0))
+                for match in n_match:
+                    next_hop_int.append(match.group())
             else:
                 next_hop_int.append('not set')
 
         return next_hop_int
 
     @classmethod
-    def getRoutes(cls, routes_list):
+    def createRoutesList(cls, routes):
+        # form the list of routes and get rid of unnecessary top lines
+        routes_list = routes.splitlines()
+        # routes_list = routes_list[6:]
+
+        prev_line = None
+        position = 0
+        for line in routes_list:
+            # words = line.split(' ')
+            words = shlex.split(line)
+            len_words = len(words)
+            if len_words < 6:
+                if prev_line:
+                    routes_list[position - 1] = ' '.join([prev_line, line])
+                    routes_list[position] = ''
+                    position += 1
+                    prev_line = line
+                    len_words = 0
+                    words = None
+                else:
+                    position += 1
+                    prev_line = line
+                    len_words = 0
+                    words = None
+            else:
+                prev_line = line
+                len_words = 0
+                position += 1
+                words = None
+
+        return routes_list
+
+    @classmethod
+    def getRoutes(cls, routes):
+        routes_list = cls.createRoutesList(routes)
+
         p_keys = cls.getRoutesProtocol(routes_list)
         routes_dict = {key: {} for key in p_keys}
 

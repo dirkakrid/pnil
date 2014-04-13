@@ -106,8 +106,8 @@ def main():
         args = utils.initArgs()
         function = args['function'] if args['function'] else None
 
-        dev = build(args)
-        result = dev.run(function, args)
+        sw1 = build(args)
+        result = sw1.run(function, args)
 
         # printRoutes(result, manufacturer='Arista')
         printResult(result)
@@ -116,9 +116,9 @@ def main():
     if ARISTA and INTERPRETER_SIM:
         sw1 = netDevice()
         sw1.initialize('veos-01', 'arista', 'sw1')
-        # function = 'getHostname, getVersion, getPlatform, getCPU, getDetails'
+        # # function = 'getHostname, getVersion, getPlatform, getCPU, getDetails'
         function = 'getRoutes'
-        result = dev.run(function)
+        result = sw1.run(function)
 
         printRoutes(result, manufacturer='Arista')
 
@@ -152,8 +152,8 @@ def main():
             S        76.96.92.197 [254/0] via 66.176.87.1, GigabitEthernet0/0
             B     192.168.31.0/24 [200/0] via 10.16.0.2, 5d14h
             B     192.168.33.0/24 [200/0] via 10.16.0.2, 5d14h'''
-        cisco_list = cisco_str.split('\n')
-        result = routingInfo.getRoutes(cisco_list)
+        # cisco_list = cisco_str.split('\n')
+        result = routingInfo.getRoutes(cisco_str)
 
         printRoutes(result, manufacturer='Arista')
 
