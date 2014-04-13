@@ -62,8 +62,6 @@ def build(args):
 # -------------------
 # GLOBAL VARIABLES FOR PRINTING AND RUNNING
 # -------------------
-PRETTY = False
-DATASTRUCTURE_VIEW = False if PRETTY else True
 ARISTA = True
 CISCO_IOS = False
 ARGUMENTS = True
@@ -72,20 +70,13 @@ INTERPRETER_SIM = False if ARGUMENTS else True
 
 def printResult(result, manufacturer='Arista'):
     pp = pprint.PrettyPrinter(indent=2, width=60)
-    if DATASTRUCTURE_VIEW:
-        if type(result) is not str and type(result) is not unicode:
-            print ('# ' + '-' * 80)
-            print ('# DATASTRUCTURE REPRESENTATION {0} ROUTES'.format(manufacturer.upper()))
-            print ('# ' + '-' * 80)
-            pp.pprint(result)
-        else:
-            print (result)
-
-    if PRETTY:
+    if type(result) is not str and type(result) is not unicode:
         print ('# ' + '-' * 80)
-        print ('# PRETTY PRINTING {0} ROUTES'.format(manufacturer.upper()))
+        print ('# DATASTRUCTURE REPRESENTATION {0} ROUTES'.format(manufacturer.upper()))
         print ('# ' + '-' * 80)
-        printRoutes.printByProtocol(result, ['C', 'OSPF', 'STATIC', 'BGP'])
+        pp.pprint(result)
+    else:
+        print (result)
 
 def main():
     '''
