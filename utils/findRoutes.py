@@ -21,8 +21,8 @@ AD_METRIC_RE = re.compile(r'(?<=\[)([0-9]{1,3}/[0-9]{1,3})(?=\])')
 # ---------------------------------------
 
 # NEXTHOP_IP WORKS ON IOS/ARISTA AND NX-OS
-NEXTHOP_IP = re.compile(r'((?<=[a-zA-Z]{3}\s)(([0-9]{1,3}\.){3}[0-9]{1,3})(?=,))')
-NEXTHOP_INT_RE = re.compile(r'(?<=\d,\s)(([a-zA-Z])+([0-9]{1,3})(/?)([0-9]{1,3})?(/?)([0-9]{1,3})?(/?)([0-9]{1,3})?)|Null0')
+NEXTHOP_IP = re.compile(r'(((?<=[\w]{3}\s)(([\d]{1,3}\.){3}[\d]{1,3})(?=,))|connected)')
+NEXTHOP_INT_RE = re.compile(r'((?<=\d,\s)|(?<=connected,\s))(([\w])+([\d]{1,3})(/?)([\d]{1,3})?(/?)([\d]{1,3})?(/?)([\d]{1,3})?)|Null0')
 # ---------------------------------------
 
 class standardRoutes(object):
