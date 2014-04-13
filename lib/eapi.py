@@ -170,7 +170,7 @@ class eapi(object):
     def getUptime(self):
         output = self._runCmdText(['show uptime'])[0]['output']
         # finds uptime if output is in H:M or (|) in "number Mins|Days"
-        uptime = re.search(r"(?<=up\s)([\d:]+(?=\s?,)) | (?<=up\s)[\d]+\s\w+(?=\s?\,)", output).group(0)
+        uptime = re.search(r"(?<=up\s)([\d:]+(?=\s?,))|(?<=up\s)[\d]+\s\w+(?=\s?\,)", output).group(0)
         return self._createDataDict('uptime', uptime)
 
     def getCPU(self):
