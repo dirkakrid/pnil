@@ -57,36 +57,6 @@ def build(args):
 
     return net_dev
 
-def getFunction(args):
-    return args['function'] if args['function'] else args['cli']
-
-def run(dev, args):
-    function = args['function'] if args['function'] else args['cli']
-    vrf = args['vrf'] if args['vrf'] else None
-    options = args['options'] if args['options'] else None
-    if function:
-        if vrf:
-            value = dev.run(function, vrf)
-        else:
-            value = dev.run(function)
-    else:
-        value = dev.displayError()
-
-    return value
-
-def runInterpreter(dev, args):
-    function = args[0]
-    vrf = args[1]
-    if function:
-        if vrf:
-            value = dev.run(function, vrf)
-        else:
-            value = dev.run(function)
-    else:
-        value = dev.displayError()
-
-    return value
-
 # -------------------
 # GLOBAL VARIABLES FOR PRINTING AND RUNNING
 # -------------------
@@ -118,24 +88,37 @@ def printRoutes(result, manufacturer='Arista'):
         print ('# ' + '-' * 80)
         printRouting.findByProtocol(result, ['C', 'OSPF', 'STATIC', 'BGP'])
 
+def printResult(result):
+    pp = pprint.PrettyPrinter(indent=2, width=60)
+    if DATASTRUCTURE_VIEW:
+        if type(result) is not str and type(result) is not unicode:
+            print ('# ' + '-' * 80)
+            pp.pprint(result)
+        else:
+            print ('# ' + '-' * 80)
+            print (result)
+
 def main():
     '''
     Ran only if program called as script
     '''
     if ARISTA and ARGUMENTS:
         args = utils.initArgs()
+        function = args['function'] if args['function'] else None
 
         dev = build(args)
-        result = dev.run(args)
+        result = dev.run(function, args)
 
-        printRoutes(result, manufacturer='Arista')
+        # printRoutes(result, manufacturer='Arista')
+        printResult(result)
+
 
     if ARISTA and INTERPRETER_SIM:
         sw1 = netDevice()
         sw1.initialize('veos-01', 'arista', 'sw1')
         # function = 'getHostname, getVersion, getPlatform, getCPU, getDetails'
-        function = 'getRoutesDetail'
-        result = runInterpreter(sw1, [function, 'default'])
+        function = 'getRoutes'
+        result = dev.run(function)
 
         printRoutes(result, manufacturer='Arista')
 

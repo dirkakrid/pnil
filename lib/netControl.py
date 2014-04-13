@@ -102,9 +102,9 @@ class netDevice(object):
                 print '*** ' + each
 
     @classmethod
-    def _getFunction(cls, args):
+    def _getFunction(cls, func):
         
-        func_calls = args['cli'].split(',') if args['cli'] else args['function'].split(',')
+        func_calls = func.split(',')
         new_calls = []
         if len(func_calls) > 1:
             for call in func_calls:
@@ -114,7 +114,7 @@ class netDevice(object):
 
         return new_calls
 
-    def run(self, args):
+    def run(self, function, args=None):
         '''
         Checks implemented_methods constant and tests if library has called method.
         otherwise terminates with mothod not implemented.
@@ -124,7 +124,7 @@ class netDevice(object):
             raise Exception("initialize device first, see help(netDevice) for more info")
 
         implemented_methods = dir(self._net_device)
-        func_call = self._getFunction(args)
+        func_call = self._getFunction(function)
 
         result = [] if len(func_call) > 1 else None
 
