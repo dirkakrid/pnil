@@ -76,7 +76,9 @@ def printResult(result, manufacturer='Arista'):
         print ('# ' + '-' * 80)
         pp.pprint(result)
     else:
+        print ('# ' + '-' * 80)
         print (result)
+        print ('# ' + '-' * 80)
 
 def main():
     '''
