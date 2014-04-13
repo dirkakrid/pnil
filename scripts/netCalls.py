@@ -63,6 +63,7 @@ def getFunction(args):
 def run(dev, args):
     function = args['function'] if args['function'] else args['cli']
     vrf = args['vrf'] if args['vrf'] else None
+    options = args['options'] if args['options'] else None
     if function:
         if vrf:
             value = dev.run(function, vrf)
@@ -125,13 +126,13 @@ def main():
         args = utils.initArgs()
 
         dev = build(args)
-        result = run(dev, args)
+        result = dev.run(args)
 
         printRoutes(result, manufacturer='Arista')
 
     if ARISTA and INTERPRETER_SIM:
         sw1 = netDevice()
-        sw1.initialize('veos-m-01', 'arista', 'sw1')
+        sw1.initialize('veos-01', 'arista', 'sw1')
         # function = 'getHostname, getVersion, getPlatform, getCPU, getDetails'
         function = 'getRoutesDetail'
         result = runInterpreter(sw1, [function, 'default'])

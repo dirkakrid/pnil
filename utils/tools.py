@@ -62,8 +62,10 @@ class utils(object):
         parser.add_argument('-n', '--name', help='Enter the device\'s name. i.e -n sw1')
         parser.add_argument('-m', '--manufacturer', help='Enter the manufacturer to run on\
             i.e => -m arista')
-        args = vars(parser.parse_args())
-        return args
+        parser.add_argument('-o', '--options', help='Enter an option such as when runnint ip route\
+            "show ip route ospf|bgp"')
+        return vars(parser.parse_args())
+        
 
     @classmethod
     def convertSize(cls, size, suffix, kilobyte_1024_bytes=True):
