@@ -8,12 +8,12 @@ import shlex
 # ----------------------------------------------------------------
 
 # FOR IOS / ARISTA
-PROTOCOL_RE = re.compile(r'(?<=\s)(([a-zA-Z])|([a-zA-Z]\s[a-zA-Z]+[0-9]?)|([a-zA-Z]+?\*))(?=\s+[0-9]+\.)')
-PREFIX_RE = re.compile(r'(([0-9]{1,3}\.){3}([0-9]{1,3}){1}((/[0-9]{1,2})?)((?=\s?\[)|(?=\sis)))')
+PROTOCOL_RE = re.compile(r'(?<=\s)(([\w])|([\w]\s[\w]+[\d]?)|([\w]+?\*))(?=\s+[\d]+\.)')
+PREFIX_RE = re.compile(r'(([\d]{1,3}\.){3}([\d]{1,3}){1}((/[\d]{1,2})?)((?=\s?\[)|(?=\sis)))')
 # -----------------
 
 # FOR NX-OS DEVICES
-PREFIX_NX_RE = re.compile(r'([0-9]{1,3}\.){3}([0-9]){1,3}/[0-9]{1,2}(?=,)')
+PREFIX_NX_RE = re.compile(r'([\d]{1,3}\.){3}([\d]){1,3}/[\d]{1,2}(?=,)')
 # -----------------
 
 # AD_METRIC WORKS ON IOS/ARISTA AND NX-OS
