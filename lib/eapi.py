@@ -258,9 +258,7 @@ class eapi(object):
         else:
             routes = self._runCmdText(['show ip route'])[0]['output']
         
-        routes_dict = standardRoutes.getRoutes(routes)
-
-        return routes_dict
+        return standardRoutes.getRoutes(routes)
 
     # ----------------------------------------------------------------
 

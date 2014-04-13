@@ -36,7 +36,7 @@ def initArgs():
     parser.add_argument('-n', '--name', help='Enter the device\'s name. i.e -n sw1')
     parser.add_argument('-m', '--manufacturer', help='Enter the manufacturer to run on\
         i.e => -m arista')
-    parser.add_argument('-o', '--options', help='Enter an option such as when runnint ip route\
+    parser.add_argument('-o', '--options', help='Enter an option such as when running\
         "show ip route ospf|bgp"')
     return vars(parser.parse_args())
     
