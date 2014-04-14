@@ -63,7 +63,7 @@ def build(args):
 # -------------------
 ARISTA = True
 CISCO_IOS = False
-ARGUMENTS = False
+ARGUMENTS = True
 INTERPRETER_SIM = False if ARGUMENTS else True
 # -------------------
 
