@@ -128,23 +128,21 @@ class netDevice(object):
 
         result = [] if len(func_call) > 1 else None
 
-        if not func_call:
-            self.displayError()
-        else:
-            if len(func_call) > 1:
-                for call in func_call:
-                    if call not in implemented_methods:
-                        self.displayError()
-                        continue
-                    result.append(getattr(self._net_device, call)())
-            else:
-                if func_call[0] not in implemented_methods:
+        if len(func_call) > 1:
+            for call in func_call:
+                if call not in implemented_methods:
                     self.displayError()
+                    continue
+                result.append(getattr(self._net_device, call)())
+        else:
+            if func_call[0] not in implemented_methods:
+                self.displayError()
+            elif args is not None:
+                if args['vrf'] or args['options']:
+                    result = getattr(self._net_device, func_call[0])(args)
                 else:
-                    if args:
-                        if args['vrf'] or args['options']:
-                            result = getattr(self._net_device, func_call[0])(args)
-                    else:
-                        result = getattr(self._net_device, func_call[0])()
+                    result = getattr(self._net_device, func_call[0])()
+            else:
+                result = getattr(self._net_device, func_call[0])()
 
-            return result
+        return result

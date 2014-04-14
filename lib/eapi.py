@@ -6,290 +6,295 @@
 
 # ----------------------------------------------------------------
 
-# ----------------------------------------------------------------
-# Import Server JSON RPC library
-# ----------------------------------------------------------------
-
-from jsonrpclib import Server
-from pnil.utils.findRoutes import standardRoutes
-import re
-
-# ----------------------------------------------------------------
-# GLOBAL VARIABLES
-# ----------------------------------------------------------------
-
-
-# ----------------------------------------------------------------
-
-# ----------------------------------------------------------------
-# Configuration section
-# ----------------------------------------------------------------
-# _host = "IP address of Arista Switch"
-# _api_call ==> Enter the CLI command to run
-# _user = '_user with api/admin access'
-# _pass = '_pass'
-# ----------------------------------------------------------------
-
-class eapi(object):
-    """docstring for arista"""
-    def __init__(self):
-        super(eapi, self).__init__()
-        self._host = None
-        self._user = 'admin'
-        self._pass = 'arista'
-        self._switch = None
-        self._name = None
-        self._version_info = None
-        self._connected = False
-
-    def __str__(self):
-        rtr_str = 'name:\t\t{0}\nhost:\t\t{1}\nfunction:\t{2}\
-        '.format(self._name, self._host)
-        return rtr_str
-
+import sys
+if sys.version_info > (2, 7) and sys.version_info < (3, 0):
     # ----------------------------------------------------------------
-    # "Private / Protected" Methods
+    # Import Server JSON RPC library
     # ----------------------------------------------------------------
 
-    def _connectToSwitch(self):
-        try:
-            return Server('https://{0}:{1}@{2}/command-api\
-                '.format(self._user, self._pass, self._host))
-        except Exception as e:
-            print ('There was an error trying to connect: {}'.format(e))
-
-    # run CMD
-    def _runCmd(self, cli):
-        if self._connected:
-            return self._switch.runCmds(1, cli)
-        else:
-            self.connect()
-            return self._switch.runCmds(1, cli)
-
-    # run non JSON CMD
-    def _runCmdText(self, cli):
-        if self._connected:
-            return self._switch.runCmds(1, cli, 'text')
-        else:
-            self.connect()
-            return self._switch.runCmds(1, cli, 'text')
-
-    def _versionList(self):
-        '''
-            Gets version and converts to a list of Ivalues
-            this allows comparisons between software versions
-            by calling int(on an index)
-        '''
-
-        # checks if self._version_info is not empy
-        if not self._version_info:
-            self.getVersionInfo()
-
-        version_list = self._version_info['version'].split('.')
-        return version_list
-
-    @classmethod
-    def _createDataDict(cls, key, value):
-        return {key: value}
+    from jsonrpclib import Server
+    from pnil.utils.findRoutes import standardRoutes
+    import re
 
     # ----------------------------------------------------------------
-    # Public / Unprotected Methods
+    # GLOBAL VARIABLES
     # ----------------------------------------------------------------
 
-    # creates connection to switch
-    def connect(self):
-        try:
-            self._switch = self._connectToSwitch()
-            self._connected = True
-            return self._switch
-        except Exception as e:
-            print ('Could not connect, error: {0}'.format(e))
-
-    def setLogin(self, username, password):
-        self._user, self._pass = username, password
-
-    def initialize(self, host, name):
-        self._host = host
-        self._name = name
-
-    def getHost(self):
-        return self._createDataDict('host', self._host)
-
-    def getName(self):
-        return self._createDataDict('name', self._name)
-
-    # getVersionInfo created to streamline the calling of "show version"
-    # there was allot of code that repeated it, this way, only one call is needed
-    # speeds up the process and makes it more efficient.
-    def getVersionInfo(self):
-        ''' returns a 'show version' output as a dictionary '''
-
-        # normaly returns list with dictionary.
-        version_info = self._runCmd(['show version'])
-        self._version_info = version_info[0]
-
-        #returns only dict of relevant information
-        return self._version_info
-
-    def getVersion(self):
-        ''' Returns the device running code version as a string '''
-
-        # checks if self._version_info is not empy
-        if not self._version_info:
-            self.getVersionInfo()
-
-        return self._createDataDict('version', self._version_info['version'])
-
-    # function returns a dictionary of the interfaces and their status
-    def getInterfacesStatus(self):
-        response = self._runCmd(['show interfaces status'])[0]['interfaceStatuses']
-
-        return response
-
-    def getPlatform(self):
-        if not self._version_info:
-            self.getVersionInfo()
-
-        return self._createDataDict('platform', self._version_info['modelName'])
-
-    def getSerialNumber(self):
-
-        if not self._version_info:
-            self.getVersionInfo()
-
-        serial = self._version_info['serialNumber']
-
-        serial_number = self._createDataDict('serial_number', serial)
-
-        if serial_number['serial_number'] == '':
-            non_serial = {'serial_number': 'not_found'}
-            return non_serial
-        else:
-            return serial_number
-
-    def getUptime(self):
-        output = self._runCmdText(['show uptime'])[0]['output']
-        # finds uptime if output is in H:M or (|) in "number Mins|Days"
-        uptime = re.search(r"(?<=up\s)([\d:]+(?=\s?,))|(?<=up\s)[\d]+\s\w+(?=\s?\,)", output).group(0)
-        return self._createDataDict('uptime', uptime)
-
-    def getCPU(self):
-        output = self._runCmdText(['show processes top once'])[0]['output']
-        
-        cpu = re.search(r"\d+\.\d*%(?=us)", output).group(0)
-        return self._createDataDict('cpu_usage', cpu)
-
-    def getHostname(self):
-        ''' Returns the device's none FQDN hostname '''
-
-        version_int = self._versionList()
-
-        if int(version_int[0]) >= 4 and int(version_int[1]) >= 13:
-            output = self._runCmd(['show hostname'])[0]['hostname']
-            return self._createDataDict('hostname', output)
-        else:
-            output = self._runCmdText(['show lldp local-info'])[0]['output']
-
-            host = re.search(r"(?<=System Name: \").*?(?=\.)", output).group(0)
-            return self._createDataDict('hostname', host)
-
-    def getFQDN(self):
-        '''
-            Returns the device's FQDN hostname.domain.suffix
-            has not been added to main.py yet, waiting to make sure
-            their's support accross platforms
-        '''
-
-        version_int = self._versionList()
-
-        if int(version_int[0]) >= 4 and int(version_int[1]) >= 13:
-            output = self._runCmd(["show hostname"])[0]['fqdn']
-            return self._createDataDict('fqdn', output)
-        else:
-            output = self._runCmdText(['show lldp local-info'])[0]['output']
-
-            fqdn = re.search(r"(?<=System Name: \").*?(?=\")", output).group(0)
-            return self._createDataDict('fqdn', fqdn)
-
-    def getAAA(self):
-        aaa = self._runCmd(['enable', 'show aaa'])[1]['users']
-        return aaa
-
-    def getFreeMem(self):
-
-        # checks if self._version_info is not empy
-        if not self._version_info:
-            self.getVersionInfo()
-
-        free_mem = {'free_memory': self._version_info['memFree']}
-
-        return free_mem
-
-    def getTotalMem(self):
-
-        # checks if self._version_info is not empy
-        if not self._version_info:
-            self.getVersionInfo()
-
-        total_mem = {'total_memory': self._version_info['memTotal']}
-
-        return total_mem
-
-    def getSystemMac(self):
-        if not self._version_info:
-            self.getVersionInfo()
-
-        return self._createDataDict('system_mac', self._version_info['systemMacAddress'])
-
-    # ----------------------------------------------------------------
-    # FIND ROUTING INFORMATION
-    # ----------------------------------------------------------------
-
-    def getRoutes(self, args=None):
-        if args and args['vrf'] and args['options']:
-            routes = self._runCmdText(['show ip route vrf {0} {1}\
-                '.format(args['vrf'], args['options'])])[0]['output']
-        elif args and args['vrf']:
-            routes = self._runCmdText(['show ip route vrf {0}\
-                '.format(args['vrf'])])[0]['output']
-        elif args and args['options']:
-            routes = self._runCmdText(['show ip route {0}\
-                '.format(args['options'])])[0]['output']
-        else:
-            routes = self._runCmdText(['show ip route'])[0]['output']
-        
-        return standardRoutes.getRoutes(routes)
 
     # ----------------------------------------------------------------
 
-    def getDetails(self):
+    # ----------------------------------------------------------------
+    # Configuration section
+    # ----------------------------------------------------------------
+    # _host = "IP address of Arista Switch"
+    # _api_call ==> Enter the CLI command to run
+    # _user = '_user with api/admin access'
+    # _pass = '_pass'
+    # ----------------------------------------------------------------
 
-        # moved getVersionInfo() so this information gets refreshed as well
-        # and to remove the redundancy of __init__
-        self.getVersionInfo()
+    class eapi(object):
+        """docstring for arista"""
+        def __init__(self):
+            super(eapi, self).__init__()
+            self._host = None
+            self._user = 'admin'
+            self._pass = 'arista'
+            self._switch = None
+            self._name = None
+            self._version_info = None
+            self._connected = False
 
-        items = (
-            self.getVersion(),
-            self.getCPU(),
-            self.getFreeMem(),
-            self.getTotalMem(),
-            self.getUptime(),
-            self.getPlatform(),
-            self.getSerialNumber(),
-            self.getHost(),
-            self.getHostname(),
-            self.getName(),
-            self.getSystemMac()
-            )
+        def __str__(self):
+            rtr_str = 'name:\t\t{0}\nhost:\t\t{1}\nfunction:\t{2}\
+            '.format(self._name, self._host)
+            return rtr_str
 
-        details = {}
+        # ----------------------------------------------------------------
+        # "Private / Protected" Methods
+        # ----------------------------------------------------------------
 
-        for item in items:
-            details.update(item)
+        def _connectToSwitch(self):
+            try:
+                return Server('https://{0}:{1}@{2}/command-api\
+                    '.format(self._user, self._pass, self._host))
+            except Exception as e:
+                print ('There was an error trying to connect: {}'.format(e))
 
-        # details = {'hostname': hostname, 'connect_ip': connect_ip, 'platform': platform,
-        #               'version': sh_ver, 'serial_number': serial_number, 'system_uptime': uptime,
-        #               'cpu_utilization': cpu_utilization, 'free_system_memory': free_memory,
-        #               'total_sytem_memory': total_memory, 'vendor': 'arista'}
+        # run CMD
+        def _runCmd(self, cli):
+            if self._connected:
+                return self._switch.runCmds(1, cli)
+            else:
+                self.connect()
+                return self._switch.runCmds(1, cli)
 
-        return details
+        # run non JSON CMD
+        def _runCmdText(self, cli):
+            if self._connected:
+                return self._switch.runCmds(1, cli, 'text')
+            else:
+                self.connect()
+                return self._switch.runCmds(1, cli, 'text')
+
+        def _versionList(self):
+            '''
+                Gets version and converts to a list of Ivalues
+                this allows comparisons between software versions
+                by calling int(on an index)
+            '''
+
+            # checks if self._version_info is not empy
+            if not self._version_info:
+                self.getVersionInfo()
+
+            version_list = self._version_info['version'].split('.')
+            return version_list
+
+        @classmethod
+        def _createDataDict(cls, key, value):
+            return {key: value}
+
+        # ----------------------------------------------------------------
+        # Public / Unprotected Methods
+        # ----------------------------------------------------------------
+
+        # creates connection to switch
+        def connect(self):
+            try:
+                self._switch = self._connectToSwitch()
+                self._connected = True
+                return self._switch
+            except Exception as e:
+                print ('Could not connect, error: {0}'.format(e))
+
+        def setLogin(self, username, password):
+            self._user, self._pass = username, password
+
+        def initialize(self, host, name):
+            self._host = host
+            self._name = name
+
+        def getHost(self):
+            return self._createDataDict('host', self._host)
+
+        def getName(self):
+            return self._createDataDict('name', self._name)
+
+        # getVersionInfo created to streamline the calling of "show version"
+        # there was allot of code that repeated it, this way, only one call is needed
+        # speeds up the process and makes it more efficient.
+        def getVersionInfo(self):
+            ''' returns a 'show version' output as a dictionary '''
+
+            # normaly returns list with dictionary.
+            version_info = self._runCmd(['show version'])
+            self._version_info = version_info[0]
+
+            #returns only dict of relevant information
+            return self._version_info
+
+        def getVersion(self):
+            ''' Returns the device running code version as a string '''
+
+            # checks if self._version_info is not empy
+            if not self._version_info:
+                self.getVersionInfo()
+
+            return self._createDataDict('version', self._version_info['version'])
+
+        # function returns a dictionary of the interfaces and their status
+        def getInterfacesStatus(self):
+            response = self._runCmd(['show interfaces status'])[0]['interfaceStatuses']
+
+            return response
+
+        def getPlatform(self):
+            if not self._version_info:
+                self.getVersionInfo()
+
+            return self._createDataDict('platform', self._version_info['modelName'])
+
+        def getSerialNumber(self):
+
+            if not self._version_info:
+                self.getVersionInfo()
+
+            serial = self._version_info['serialNumber']
+
+            serial_number = self._createDataDict('serial_number', serial)
+
+            if serial_number['serial_number'] == '':
+                non_serial = {'serial_number': 'not_found'}
+                return non_serial
+            else:
+                return serial_number
+
+        def getUptime(self):
+            output = self._runCmdText(['show uptime'])[0]['output']
+            # finds uptime if output is in H:M or (|) in "number Mins|Days"
+            uptime = re.search(r"(?<=up\s)([\d:]+(?=\s?,))|(?<=up\s)[\d]+\s\w+(?=\s?\,)", output).group(0)
+            return self._createDataDict('uptime', uptime)
+
+        def getCPU(self):
+            output = self._runCmdText(['show processes top once'])[0]['output']
+            
+            cpu = re.search(r"\d+\.\d*%(?=us)", output).group(0)
+            return self._createDataDict('cpu_usage', cpu)
+
+        def getHostname(self):
+            ''' Returns the device's none FQDN hostname '''
+
+            version_int = self._versionList()
+
+            if int(version_int[0]) >= 4 and int(version_int[1]) >= 13:
+                output = self._runCmd(['show hostname'])[0]['hostname']
+                return self._createDataDict('hostname', output)
+            else:
+                output = self._runCmdText(['show lldp local-info'])[0]['output']
+
+                host = re.search(r"(?<=System Name: \").*?(?=\.)", output).group(0)
+                return self._createDataDict('hostname', host)
+
+        def getFQDN(self):
+            '''
+                Returns the device's FQDN hostname.domain.suffix
+                has not been added to main.py yet, waiting to make sure
+                their's support accross platforms
+            '''
+
+            version_int = self._versionList()
+
+            if int(version_int[0]) >= 4 and int(version_int[1]) >= 13:
+                output = self._runCmd(["show hostname"])[0]['fqdn']
+                return self._createDataDict('fqdn', output)
+            else:
+                output = self._runCmdText(['show lldp local-info'])[0]['output']
+
+                fqdn = re.search(r"(?<=System Name: \").*?(?=\")", output).group(0)
+                return self._createDataDict('fqdn', fqdn)
+
+        def getAAA(self):
+            aaa = self._runCmd(['enable', 'show aaa'])[1]['users']
+            return aaa
+
+        def getFreeMem(self):
+
+            # checks if self._version_info is not empy
+            if not self._version_info:
+                self.getVersionInfo()
+
+            free_mem = {'free_memory': self._version_info['memFree']}
+
+            return free_mem
+
+        def getTotalMem(self):
+
+            # checks if self._version_info is not empy
+            if not self._version_info:
+                self.getVersionInfo()
+
+            total_mem = {'total_memory': self._version_info['memTotal']}
+
+            return total_mem
+
+        def getSystemMac(self):
+            if not self._version_info:
+                self.getVersionInfo()
+
+            return self._createDataDict('system_mac', self._version_info['systemMacAddress'])
+
+        # ----------------------------------------------------------------
+        # FIND ROUTING INFORMATION
+        # ----------------------------------------------------------------
+
+        def getRoutes(self, args=None):
+            if args and args['vrf'] and args['options']:
+                routes = self._runCmdText(['show ip route vrf {0} {1}\
+                    '.format(args['vrf'], args['options'])])[0]['output']
+            elif args and args['vrf']:
+                routes = self._runCmdText(['show ip route vrf {0}\
+                    '.format(args['vrf'])])[0]['output']
+            elif args and args['options']:
+                routes = self._runCmdText(['show ip route {0}\
+                    '.format(args['options'])])[0]['output']
+            else:
+                routes = self._runCmdText(['show ip route'])[0]['output']
+            
+            return standardRoutes.getRoutes(routes)
+
+        # ----------------------------------------------------------------
+
+        def getDetails(self):
+
+            # moved getVersionInfo() so this information gets refreshed as well
+            # and to remove the redundancy of __init__
+            self.getVersionInfo()
+
+            items = (
+                self.getVersion(),
+                self.getCPU(),
+                self.getFreeMem(),
+                self.getTotalMem(),
+                self.getUptime(),
+                self.getPlatform(),
+                self.getSerialNumber(),
+                self.getHost(),
+                self.getHostname(),
+                self.getName(),
+                self.getSystemMac()
+                )
+
+            details = {}
+
+            for item in items:
+                details.update(item)
+
+            # details = {'hostname': hostname, 'connect_ip': connect_ip, 'platform': platform,
+            #               'version': sh_ver, 'serial_number': serial_number, 'system_uptime': uptime,
+            #               'cpu_utilization': cpu_utilization, 'free_system_memory': free_memory,
+            #               'total_sytem_memory': total_memory, 'vendor': 'arista'}
+
+            return details
+
+else:
+    raise ValueError("Only version greater than 2.7 and less then 3.0 are supported")
