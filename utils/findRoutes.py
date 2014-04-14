@@ -8,31 +8,33 @@ import shlex
 # ----------------------------------------------------------------
 
 # FOR IOS / ARISTA
-PROTOCOL_RE = re.compile(r'(?<=\s)(([\w])|([\w]\s[\w]+[\d]?)|([\w]+?\*))(?=\s+[\d]+\.)')
-PREFIX_RE = re.compile(r'(([\d]{1,3}\.){3}([\d]{1,3}){1}((/[\d]{1,2})?)((?=\s?\[)|(?=\sis)))')
+PROTOCOL_RE = re.compile(r'(?<=\s)(([\w])|([\w]\s[\w]+[\d]?)|([\w]+?\*))(?=\s+[\d]+\.)', re.IGNORECASE)
+PREFIX_RE = re.compile(r'(([\d]{1,3}\.){3}([\d]{1,3}){1}((/[\d]{1,2})?)((?=\s?\[)|(?=\sis)))', re.IGNORECASE)
 # -----------------
 
 # FOR NX-OS DEVICES
-PREFIX_NX_RE = re.compile(r'([\d]{1,3}\.){3}([\d]){1,3}/[\d]{1,2}(?=,)')
+PREFIX_NX_RE = re.compile(r'(([\d]{1,3}\.){3}([\d]{1,3}){1}(/[\d]{1,2}))')
+PROTOCOL_NX_RE = re.compile(r'(((\w+-\d{1,5}),\s\w+((\w+)(-\d{1})?)))|direct|local|hsrp|glbp', re.IGNORECASE)
 # -----------------
 
 # AD_METRIC WORKS ON IOS/ARISTA AND NX-OS
-AD_METRIC_RE = re.compile(r'(?<=\[)([0-9]{1,3}/[0-9]{1,3})(?=\])')
+AD_METRIC_RE = re.compile(r'(?<=\[)([0-9]{1,3}/[0-9]{1,3})(?=\])', re.IGNORECASE)
 # ---------------------------------------
 
 # NEXTHOP_IP WORKS ON IOS/ARISTA AND NX-OS
-NEXTHOP_IP = re.compile(r'(((?<=[\w]{3}\s)(([\d]{1,3}\.){3}[\d]{1,3})(?=,))|connected)')
-NEXTHOP_INT_RE = re.compile(r'((?<=\d,\s)|(?<=connected,\s))(([\w])+([\d]{1,3})(/?)([\d]{1,3})?(/?)([\d]{1,3})?(/?)([\d]{1,3})?)|Null0')
+NEXTHOP_IP = re.compile(r'(((?<=[\w]{3}\s)(([\d]{1,3}\.){3}[\d]{1,3})(?=,))|connected)', re.IGNORECASE)
+NEXTHOP_INT_RE = re.compile(r'((?<=\d,\s)|(?<=connected,\s))(([\w])+([\d]{1,3})(/?)([\d]{1,3})?(/?)([\d]{1,3})?(/?)([\d]{1,3})?)|Null0', re.IGNORECASE)
 # ---------------------------------------
+
+
+# ----------------------------------------------------------------
+# FIND STANDARD ROUTING INFORMATION
+# ----------------------------------------------------------------
 
 class standardRoutes(object):
     """docstring for routingInfo"""
     def __init__(self):
         super(standardRoutes, self).__init__()
-    
-    # ----------------------------------------------------------------
-    # FIND ROUTING INFORMATION
-    # ----------------------------------------------------------------
 
     @classmethod
     def getRoutesProtocol(cls, search_list):
@@ -158,4 +160,13 @@ class standardRoutes(object):
 
         return routes_dict
 
-    # ----------------------------------------------------------------
+# ----------------------------------------------------------------
+
+# ----------------------------------------------------------------
+# FIND NX-OS ROUTING INFORMATION
+# ----------------------------------------------------------------
+
+class NXOSRoutes(standardRoutes):
+    """docstring for NXOSRoutes"""
+    def __init__(self):
+        super(NXOSRoutes, self).__init__()
