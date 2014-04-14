@@ -99,7 +99,7 @@ class netDevice(object):
         funcs = dir(self._net_device)
         for each in funcs:
             if not (each.startswith('__') or each.startswith('_')):
-                print '*** ' + each
+                print ('*** ' + each)
 
     @classmethod
     def _getFunction(cls, func):

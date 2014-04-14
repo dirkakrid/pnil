@@ -30,7 +30,7 @@ def initArgs():
     parser.add_argument('-c', '--cli', help='i.e. pass a raw cli command')
     parser.add_argument('--vrf', help='Pass a VRF name to the function/cli')
     parser.add_argument('-i', '--ip_address', help='i.e. -i "192.168.31.21"')
-    parser.add_argument('-d', '--dns_name', help='i.e. -h sw01.domain.com')
+    parser.add_argument('-d', '--hostname', help='i.e. -h sw01.domain.com')
     parser.add_argument('-u', '--username', help='Enter username of device')
     parser.add_argument('-p', '--password', help='Enter password for username')
     parser.add_argument('-n', '--name', help='Enter the device\'s name. i.e -n sw1')
