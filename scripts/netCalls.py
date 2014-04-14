@@ -44,7 +44,7 @@ def showConnectedIntf(_status):
 def build(args):
 
     # sets dev_name if -n is used, otherwise generic 'dev' is used
-    name = args['name'] if args['name'] else 'netDevice'
+    name = args['name'] if args['name'] else 'net1'
 
     # create device with ip_address or dns_name and manufacturer info
     _host = args['ip_address'] if args['ip_address'] else args['dns_name']
