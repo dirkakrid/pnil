@@ -4,7 +4,7 @@ Author:             [@IPYandy](https://twitter.com/IPyandy) (Yandy Ramirez)
 Code Verion:    None
 Reason:             Because I can!
 
-A fun little personal project using python to connect to network devices and do fun stuff. Not allot to show right now.
+A fun personal project using python to connect to network devices and do fun stuff. Not allot to show right now.
 
 
 **Sample Call**
@@ -23,6 +23,8 @@ system_uptime:      4 days
 ```
 
 Any serious discovery or outcome that happens here, will probably be ported over to [CPAL](https://github.com/jedelman8/cpal). Which is a collaboration of a few engineers to standarize network device communication through APIs.
+
+This code needs documentation, I know, working on it. :)
 
 Follow my [BLOG](http://ipyandy.net) for more on networking, coding and rants.
 Follow me on [Twitter @IPyandy](http://twitter.com/IPyandy) and stay in touch.
