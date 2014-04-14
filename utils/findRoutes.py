@@ -80,6 +80,7 @@ class standardRoutes(object):
     def getNextHop(cls, search_list):
         next_hop = []
         for n in search_list:
+            # finditer returns an iterator if match is found
             n_match = NEXTHOP_IP.finditer(n)
 
             if n_match:
@@ -94,6 +95,7 @@ class standardRoutes(object):
     def getNextHopInterface(cls, search_list):
         next_hop_int = []
         for n in search_list:
+            # finditer returns an iterator if match is found
             n_match = NEXTHOP_INT_RE.finditer(n)
 
             if n_match:
