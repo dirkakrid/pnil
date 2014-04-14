@@ -1,7 +1,7 @@
 ### Python Network Interface Library
 
 Author:             [@IPYandy](https://twitter.com/IPyandy) (Yandy Ramirez)
-Code Verion:    None
+Code Verion:    	0.0.1
 Reason:             Because I can!
 
 A fun personal project using python to connect to network devices and do fun stuff. Not allot to show right now.
