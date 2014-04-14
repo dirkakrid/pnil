@@ -63,7 +63,7 @@ def build(args):
 # -------------------
 ARISTA = True
 CISCO_IOS = False
-ARGUMENTS = True
+ARGUMENTS = False
 INTERPRETER_SIM = False if ARGUMENTS else True
 # -------------------
 
@@ -91,7 +91,6 @@ def main():
         sw1 = build(args)
         result = sw1.run(function, args)
 
-        # printRoutes(result, manufacturer='Arista')
         printResult(result)
 
 

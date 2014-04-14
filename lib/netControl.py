@@ -141,8 +141,9 @@ class netDevice(object):
                 if func_call[0] not in implemented_methods:
                     self.displayError()
                 else:
-                    if args['vrf'] or args['options']:
-                        result = getattr(self._net_device, func_call[0])(args)
+                    if args:
+                        if args['vrf'] or args['options']:
+                            result = getattr(self._net_device, func_call[0])(args)
                     else:
                         result = getattr(self._net_device, func_call[0])()
 
