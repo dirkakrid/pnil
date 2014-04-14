@@ -7,7 +7,6 @@
 from pnil.lib.netControl import netDevice
 from pnil.utils.tools import initArgs
 from pnil.utils.findRoutes import standardRoutes
-import pnil.utils.printRoutes
 import pprint
 
 #----------------------------------------------------------------
@@ -108,37 +107,32 @@ def main():
 
     # Till I figure out the paramiko exception, raw data input
     if CISCO_IOS:
-        cisco_str = '''Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
-           D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
-           N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
-           E1 - OSPF external type 1, E2 - OSPF external type 2
-           i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
-           ia - IS-IS inter area, * - candidate default, U - per-user static route
-           o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
-           + - replicated route, % - next hop override
+        cisco_str = '''Codes: C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area 
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, * - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route
 
-            Gateway of last resort is 66.176.87.1 to network 0.0.0.0
+        Gateway of last resort is 10.16.0.1 to network 0.0.0.0
 
-            S*    0.0.0.0/0 [1/0] via 66.176.87.1, GigabitEthernet0/0
-                  10.0.0.0/8 is variably subnetted, 7 subnets, 3 masks
-            C        10.16.0.1/32 is directly connected, Loopback0
-            O        10.16.0.2/32 [110/2] via 10.16.1.2, 5d14h, GigabitEthernet0/1
-            C        10.16.1.0/30 is directly connected, GigabitEthernet0/1
-            L        10.16.1.1/32 is directly connected, GigabitEthernet0/1
-            B        10.17.31.0/24 [200/0] via 10.16.0.2, 5d14h
-            B        10.17.33.0/24 [200/0] via 10.16.0.2, 5d14h
-            B        10.17.37.0/24 [200/0] via 10.16.0.2, 4d11h
-                  66.0.0.0/8 is variably subnetted, 2 subnets, 2 masks
-            C        66.176.87.0/24 is directly connected, GigabitEthernet0/0
-            L        66.176.87.64/32 is directly connected, GigabitEthernet0/0
-                  76.0.0.0/32 is subnetted, 1 subnets
-            S        76.96.92.197 [254/0] via 66.176.87.1, GigabitEthernet0/0
-            B     192.168.31.0/24 [200/0] via 10.16.0.2, 5d14h
-            B     192.168.33.0/24 [200/0] via 10.16.0.2, 5d14h'''
-        # cisco_list = cisco_str.split('\n')
+        C    192.168.31.0/24 is directly connected, Vlan31
+             66.0.0.0/24 is subnetted, 1 subnets
+        B       66.176.87.0 [200/0] via 10.16.0.1, 1d16h
+             10.0.0.0/8 is variably subnetted, 6 subnets, 3 masks
+        C       10.17.31.0/24 is directly connected, Vlan31
+        C       10.16.0.2/32 is directly connected, Loopback0
+        C       10.16.1.0/30 is directly connected, GigabitEthernet1/48
+        O       10.16.0.1/32 [110/2] via 10.16.1.1, 1w0d, GigabitEthernet1/48
+        C       10.17.33.0/24 is directly connected, Vlan33
+        C       10.17.37.0/24 is directly connected, Vlan37
+        C    192.168.33.0/24 is directly connected, Vlan33
+        B*   0.0.0.0/0 [200/0] via 10.16.0.1, 1w0d'''
+
         result = standardRoutes.getRoutes(cisco_str)
 
-        printResult(result)
+        printResult(result, manufacturer='cisco')
 
 
 if __name__ == '__main__':
