@@ -4,7 +4,29 @@ Author:             [@IPYandy](https://twitter.com/IPyandy) (Yandy Ramirez)
 Code Verion:    	0.0.1
 Reason:             Because I can!
 
-A fun personal project using python to connect to network devices and do fun stuff. Not allot to show right now.
+### Python Dependencies
+
+Code runs only on Python 2.7, to be more specific Python > 2.7.2 < 3.X
+
+# Module Dependencies
+
+* jsonrpclib
+* re, shlex
+* itertools
+* pprint 
+	* optional for displaying dictionaries and lists a bit nicer
+
+Most of these are from the standard library, the only one that needs to be installed manually is **jsonrpclib**.
+
+```shell
+pip install jsonrpclib
+```
+
+Other dependencies will be updated as the library expands.
+
+### Using the Library
+
+As of this time, while some of the code would work on Cisco devices, the API calls only work on 
 
 
 **Sample Call**
