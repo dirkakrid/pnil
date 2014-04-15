@@ -13,7 +13,7 @@ class netDevice(object):
         Parent class switch, which other classes will inherit from,
         ie. arista, cisco, juniper and so on
     """
-    def __init__(self, use_terminal_args=True):
+    def __init__(self, USE_ARGS=None):
         super(netDevice, self).__init__()
         self._net_device = None
         self._created = False
@@ -24,7 +24,8 @@ class netDevice(object):
         self._initialized = False
         self._function_options = {'vrf': None, 'options': None}
     
-        if use_terminal_args:
+        if USE_ARGS == True:
+            print USE_ARGS
             args = initArgs()
             self.parseArguments(args)
 
@@ -134,6 +135,8 @@ class netDevice(object):
             self._function = self._getFunction(args['function'])
             self._function_options['vrf'] = args['vrf'] if args['vrf'] else None
             self._function_options['options'] = args['options'] if args['options'] else None
+        elif args['function']:
+            self._function = self._getFunction(args['function'])
 
         return self._net_device
 
