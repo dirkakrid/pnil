@@ -1,8 +1,17 @@
 #!/usr/bin/env python
 
+# Python Network Interface Library
+#
+# Author:             Yandy Ramirez
+# Twitter:             @IPyandy (https://twitter.com/IPyandy)
+# Site:                  http://ipyandy.net
+# Code Verion:      0.0.1
+#
 # ----------------------------------------------------------------
 
-''' Library to make Arista Networks eAPI calls, furthur documenttion later '''
+'''
+ Library to make Arista Networks eAPI calls, furthur documenttion later
+ '''
 
 # ----------------------------------------------------------------
 
@@ -25,11 +34,6 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
 
     # ----------------------------------------------------------------
     # Configuration section
-    # ----------------------------------------------------------------
-    # _host = "IP address of Arista Switch"
-    # _api_call ==> Enter the CLI command to run
-    # _user = '_user with api/admin access'
-    # _pass = '_pass'
     # ----------------------------------------------------------------
 
     class eapi(object):
@@ -296,4 +300,6 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
             return details
 
 else:
-    raise ValueError("Only version greater than 2.7 and less then 3.0 are supported")
+    print('Python {0} is not supported at this time.'.format(sys.version_info[0:3]))
+    print("Only version greater than 2.7.2 and less then 3.0 are supported")
+    sys.exit(1)
