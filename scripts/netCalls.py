@@ -99,9 +99,9 @@ def main():
         sw1.setLogin('arista', 'arista')
         # # function = 'getHostname, getVersion, getPlatform, getCPU, getDetails'
         function = 'getRoutes'
-        kargs = {'vrf': None, 'options': 'ospf'}
-        result = sw1.run(function)
-        # result = sw1.run(function, kargs)
+        kargs = {'vrf': None, 'options': None}
+        # result = sw1.run(function)
+        result = sw1.run(function, kargs)
 
         printResult(result)
 
