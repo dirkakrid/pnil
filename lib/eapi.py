@@ -106,7 +106,8 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
                 print ('Could not connect, error: {0}'.format(e))
 
         def setLogin(self, username, password):
-            self._username,self._password = username, password
+            self._username = username
+            self._password = password
 
         def initialize(self, host, name):
             self._host = host

@@ -96,9 +96,13 @@ def main():
     if ARISTA and INTERPRETER_SIM:
         sw1 = netDevice()
         sw1.initialize('veos-01', 'arista', 'sw1')
+        sw1.setLogin('arista', 'arista')
         # # function = 'getHostname, getVersion, getPlatform, getCPU, getDetails'
         function = 'getRoutes'
         result = sw1.run(function)
+        # result = sw1.run(function, {'vrf': None, 'options': 'ospf'})
+        # result = sw1.run(function, {'vrf': 'mgmt', 'options': None})
+        # result = sw1.run(function, {'vrf': None, 'options': None})
 
         printResult(result)
 
