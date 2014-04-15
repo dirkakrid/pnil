@@ -18,7 +18,7 @@ class netDevice(object):
     _host = None
     _function = None
     _manufacturer = None
-    _kargs = {'vrf': None, 'options': None}
+    _function_options = {'vrf': None, 'options': None}
 
     def __init__(self, args=None):
         super(netDevice, self).__init__()
@@ -128,8 +128,8 @@ class netDevice(object):
         # sets the function(s) to be called if passed into the arguments
         if args['function'] and args['vrf'] or args['options']:
             self._function = self._getFunction(args['function'])
-            self._kargs['vrf'] = args['vrf'] if args['vrf'] else None
-            self._kargs['options'] = args['options'] if args['options'] else None
+            self._function_options['vrf'] = args['vrf'] if args['vrf'] else None
+            self._function_options['options'] = args['options'] if args['options'] else None
 
         return self._net_device
 
@@ -199,7 +199,7 @@ class netDevice(object):
 
         return new_calls
 
-    def run(self, args=None, kargs=None):
+    def run(self, args=None, function_options=None):
         '''
         Checks implemented_methods constant and tests if library has called method.
         otherwise terminates with mothod not implemented.
@@ -210,8 +210,8 @@ class netDevice(object):
 
         implemented_methods = dir(self._net_device)
 
-        if kargs:
-            self._kargs = kargs
+        if function_options:
+            self._function_options = function_options
 
         if not self._function and type(args) is not dict:
             self._function = self._getFunction(args)
@@ -229,9 +229,9 @@ class netDevice(object):
         else:
             if self._function[0] not in implemented_methods:
                 self.displayError()
-            elif self._kargs:
-                if self._kargs['vrf'] or self._kargs['options']:
-                    result = getattr(self._net_device, self._function[0])(self._kargs)
+            elif self._function_options:
+                if self._function_options['vrf'] or self._function_options['options']:
+                    result = getattr(self._net_device, self._function[0])(self._function_options)
                 else:
                     result = getattr(self._net_device, self._function[0])()
             else:
