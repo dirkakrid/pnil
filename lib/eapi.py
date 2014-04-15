@@ -78,7 +78,7 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
             ''' returns a 'show version' output as a dictionary '''
 
             # normaly returns list with dictionary.
-            version_info = eapi.runCMD(self, ['show version'])
+            version_info = eapi.__runCMD(self, ['show version'])
             self._version_info = version_info[0]
 
             #returns only dict of relevant information
@@ -98,7 +98,7 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
 
         # function returns a dictionary of the interfaces and their status
         def getInterfacesStatus(self):
-            response = eapi.runCMD(self, ['show interfaces status'])[0]['interfaceStatuses']
+            response = eapi.__runCMD(self, ['show interfaces status'])[0]['interfaceStatuses']
 
             return response
 
@@ -124,13 +124,13 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
                 return serial_number
 
         def getUptime(self):
-            output = eapi.runCMDText(self, ['show uptime'])[0]['output']
+            output = eapi.__runCMDText(self, ['show uptime'])[0]['output']
             # finds uptime if output is in H:M or (|) in "number Mins|Days"
             uptime = re.search(r"(?<=up\s)([\d:]+(?=\s?,))|(?<=up\s)[\d]+\s\w+(?=\s?\,)", output).group(0)
             return eapi.createDataDict('uptime', uptime)
 
         def getCPU(self):
-            output = eapi.runCMDText(self, ['show processes top once'])[0]['output']
+            output = eapi.__runCMDText(self, ['show processes top once'])[0]['output']
             
             cpu = re.search(r"\d+\.\d*%(?=us)", output).group(0)
             return eapi.createDataDict('cpu_usage', cpu)
@@ -141,10 +141,10 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
             version_int = self._versionList()
 
             if int(version_int[0]) >= 4 and int(version_int[1]) >= 13:
-                output = eapi.runCMD(self, ['show hostname'])[0]['hostname']
+                output = eapi.__runCMD(self, ['show hostname'])[0]['hostname']
                 return eapi.createDataDict('hostname', output)
             else:
-                output = eapi.runCMDText(self, ['show lldp local-info'])[0]['output']
+                output = eapi.__runCMDText(self, ['show lldp local-info'])[0]['output']
 
                 host = re.search(r"(?<=System Name: \").*?(?=\.)", output).group(0)
                 return eapi.createDataDict('hostname', host)
@@ -159,16 +159,16 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
             version_int = self._versionList()
 
             if int(version_int[0]) >= 4 and int(version_int[1]) >= 13:
-                output = eapi.runCMD(self, ["show hostname"])[0]['fqdn']
+                output = eapi.__runCMD(self, ["show hostname"])[0]['fqdn']
                 return eapi.createDataDict('fqdn', output)
             else:
-                output = eapi.runCMDText(eapi, ['show lldp local-info'])[0]['output']
+                output = eapi.__runCMDText(eapi, ['show lldp local-info'])[0]['output']
 
                 fqdn = re.search(r"(?<=System Name: \").*?(?=\")", output).group(0)
                 return eapi.createDataDict('fqdn', fqdn)
 
         def getAAA(self):
-            aaa = eapi.runCMD(self, ['enable', 'show aaa'])[1]['users']
+            aaa = eapi.__runCMD(self, ['enable', 'show aaa'])[1]['users']
             return aaa
 
         def getFreeMem(self):
@@ -240,10 +240,10 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
 
         def getRoutes(self, options=None):
             if options:
-                routes = eapi.runCMDText(self, ['show ip route {0}\
+                routes = eapi.__runCMDText(self, ['show ip route {0}\
                     '.format(options)])[0]['output']
             else:
-                routes = eapi.runCMDText(self, ['show ip route'])[0]['output']
+                routes = eapi.__runCMDText(self, ['show ip route'])[0]['output']
             
             return standardRoutes.getRoutes(routes)
 
@@ -262,7 +262,7 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
         # "Private / Protected" Methods
         # ----------------------------------------------------------------
 
-        def _connectToSwitch(self):
+        def __connectToSwitch(self):
             try:
                 return Server('https://{0}:{1}@{2}/command-api\
                     '.format(self._username, self._password, self._host))
@@ -270,7 +270,7 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
                 print ('There was an error trying to connect: {}'.format(e))
 
         # run CMD
-        def runCMD(self, cli):
+        def __runCMD(self, cli):
             if self._connected:
                 return self._switch.runCmds(1, cli)
             else:
@@ -278,7 +278,7 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
                 return self._switch.runCmds(1, cli)
 
         # run non JSON CMD
-        def runCMDText(self, cli):
+        def __runCMDText(self, cli):
             if self._connected:
                 return self._switch.runCmds(1, cli, 'text')
             else:
@@ -296,7 +296,7 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
         # creates connection to switch
         def connect(self):
             try:
-                self._switch = self._connectToSwitch()
+                self._switch = self.__connectToSwitch()
                 self._connected = True
                 return self._switch
             except Exception as e:
