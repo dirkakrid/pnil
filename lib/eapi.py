@@ -247,6 +247,13 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
             
             return standardRoutes.getRoutes(routes)
 
+        def getARP(self, options=None):
+            if options:
+                return eapi._runCMD(self, ['show arp {0}\
+                    '.format(options)])[0]
+            else:
+                return eapi._runCMD(self, ['show arp'])[0]
+
         # ----------------------------------------------------------------
                         
 

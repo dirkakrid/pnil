@@ -25,7 +25,6 @@ class netDevice(object):
         self._function_options = {'vrf': None, 'options': None}
     
         if USE_ARGS == True:
-            print USE_ARGS
             args = initArgs()
             self.parseArguments(args)
 
