@@ -2,6 +2,7 @@
 
 
 from pnil.lib.eapi import eapi
+from pnil.lib.onepk import onepk
 from itertools import izip_longest
 
 class netDevice(object):
@@ -54,6 +55,11 @@ class netDevice(object):
 
                 self._net_device = eapi()
                 self._created = True
+            elif manufacturer.lower() == 'cisco' or \
+                manufacturer.lower() == 'onepk':
+
+                self._net_device = onepk()
+                self._created = True
             else:
                 pass
         else:
@@ -67,7 +73,7 @@ class netDevice(object):
     # methods can also be called directly, but this simplifies it to the "caller"
     # by only needing to know one function or the cli command to to call.
 
-    def initialize(self, host, manufacturer, name='netDevice'):
+    def initialize(self, host, manufacturer, name='net1'):
         if self._created:
             self._net_device.initialize(host, name)
         elif not self._created and manufacturer:
