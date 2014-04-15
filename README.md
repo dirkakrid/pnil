@@ -44,8 +44,6 @@ connect_ip:         veos-01
 system_uptime:      4 days
 ```
 
-Any serious discovery or outcome that happens here, will probably be ported over to [CPAL](https://github.com/jedelman8/cpal). Which is a collaboration of a few engineers to standarize network device communication through APIs.
-
 This code needs documentation, I know, working on it. :)
 
 Follow my [BLOG](http://ipyandy.net) for more on networking, coding and rants.
