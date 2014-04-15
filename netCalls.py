@@ -16,29 +16,28 @@ from pnil.utils.findRoutes import standardRoutes
 # -------------------
 ARISTA = True
 CISCO_IOS = False
-ARGUMENTS = True
-INTERPRETER_SIM = False if ARGUMENTS else True
+USE_ARGS = False
 # -------------------
 
 def main():
     '''
     Ran only if program called as script
     '''
-    if ARISTA and ARGUMENTS:
+    if ARISTA and USE_ARGS:
         args = initArgs()
 
-        sw1 = netDevice(args)
+        sw1 = netDevice(USE_ARGS)
         result = sw1.run(args)
 
         printResult(result)
 
 
-    if ARISTA and INTERPRETER_SIM:
+    if ARISTA and not USE_ARGS:
         sw1 = netDevice()
         sw1.initialize('veos-01', 'arista', 'sw1')
         sw1.setLogin('arista', 'arista')
         # # function = 'getHostname, getVersion, getPlatform, getCPU, getDetails'
-        function = 'getRoutes'
+        function = 'getDetails'
         kargs = {'vrf': None, 'options': None}
         # result = sw1.run(function)
         result = sw1.run(function, kargs)

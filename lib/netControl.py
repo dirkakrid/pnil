@@ -3,6 +3,7 @@
 
 from pnil.lib.eapi import eapi
 from pnil.lib.onepk import onepk
+from pnil.utils.tools import initArgs
 from itertools import izip_longest
 import sys, string, random
 import re
@@ -12,7 +13,7 @@ class netDevice(object):
         Parent class switch, which other classes will inherit from,
         ie. arista, cisco, juniper and so on
     """
-    def __init__(self, args=None):
+    def __init__(self, use_terminal_args=True):
         super(netDevice, self).__init__()
         self._net_device = None
         self._created = False
@@ -23,7 +24,8 @@ class netDevice(object):
         self._initialized = False
         self._function_options = {'vrf': None, 'options': None}
     
-        if args:
+        if use_terminal_args:
+            args = initArgs()
             self.parseArguments(args)
 
     def __dir__(self):
