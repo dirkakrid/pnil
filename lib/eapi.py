@@ -45,9 +45,7 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
             self._connected = False
 
         def __str__(self):
-            rtr_str = 'name:\t\t{0}\nhost:\t\t{1}\nfunction:\t{2}\
-            '.format(self._name, self._host)
-            return rtr_str
+            return str(self.getDetails())
 
         # ----------------------------------------------------------------
         # "Private / Protected" Methods

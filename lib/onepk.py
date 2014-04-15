@@ -5,21 +5,21 @@ import sys
 if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
 
     from configobj import ConfigObj
-    # from datetime import datetime
-    # import json
+    from datetime import datetime
+    import json
 
-    # from onep.element.NetworkElement import NetworkApplication, NetworkElement
-    # from onep.interfaces.InterfaceStatus import InterfaceStatus
+    from onep.element.NetworkElement import NetworkApplication, NetworkElement
+    from onep.interfaces.InterfaceStatus import InterfaceStatus
     from onep.interfaces.InterfaceFilter import InterfaceFilter
-    # from onep.interfaces.InterfaceConfig import InterfaceConfig
+    from onep.interfaces.InterfaceConfig import InterfaceConfig
     from onep.element.SessionConfig import SessionConfig
-    # from onep.interfaces import NetworkInterface
+    from onep.interfaces import NetworkInterface
     from onep.core.exception import OnepDuplicateElementException
     from onep.vty.VtyService import VtyService
-    # from onep.cdp.CDPListener import CDPListener
-    # from onep.cdp.CDPEvent import CDPEvent
-    # from onep.cdp.CDPFilter import CDPFilter
-    # from onep.routing.RIB import RIB
+    from onep.cdp.CDPListener import CDPListener
+    from onep.cdp.CDPEvent import CDPEvent
+    from onep.cdp.CDPFilter import CDPFilter
+    from onep.routing.RIB import RIB
     from onep.routing.RoutingClass import Routing
     from onep.routing.L3UnicastRIBFilter import L3UnicastRIBFilter
     from onep.routing.L3UnicastScope import L3UnicastScope

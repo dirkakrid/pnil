@@ -10,12 +10,14 @@ class netDevice(object):
         Parent class switch, which other classes will inherit from,
         ie. arista, cisco, juniper and so on
     """
-    def __init__(self):
+    def __init__(self, host=None, manufacturer=None, name='net1'):
         super(netDevice, self).__init__()
-        # defaults for now, building methods
-        self._net_device = None
-        self._initialized = False
-        self._created = False
+        if host and manufacturer:
+            self.initialize(host, manufacturer, name)
+        else:
+            self._net_device = None
+            self._initialized = False
+            self._created = False
 
     def __dir__(self):
         net_list = sorted(dir(self._net_device))
