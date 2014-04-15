@@ -11,19 +11,19 @@ class netDevice(object):
         Parent class switch, which other classes will inherit from,
         ie. arista, cisco, juniper and so on
     """
+    _net_device = None
+    _initialized = False
+    _created = False
     _name = None
     _host = None
     _function = None
     _manufacturer = None
+    _options = {}
 
     def __init__(self, args=None):
         super(netDevice, self).__init__()
         if args:
             self.parseArguments(args)
-        else:
-            self._net_device = None
-            self._initialized = False
-            self._created = False
 
     def __dir__(self):
         net_list = sorted(dir(self._net_device))
@@ -74,7 +74,8 @@ class netDevice(object):
             raise Exception('Please enter the manufacturer information')
 
     def _id_generator(self):
-        self._name = ''.join(random.choice('NET12345689') for _ in range(6))
+        digits = ''.join(random.choice('012345689') for _ in range(4))
+        self._name = 'NET' + digits
         return self._name
 
     # ----------------------------------------------------------------
@@ -125,8 +126,10 @@ class netDevice(object):
             self._net_device.setLogin(username, password)
 
         # sets the function(s) to be called if passed into the arguments
-        if args['function']:
+        if args['function'] and args['vrf'] or args['options']:
             self._function = self._getFunction(args['function'])
+            self._options['vrf'] = args['vrf'] if args['vrf'] else None
+            self._options['options'] = args['options'] if args['options'] else None
 
         return self._net_device
 
@@ -206,6 +209,9 @@ class netDevice(object):
             raise Exception("initialize device first, see help(netDevice) for more info")
 
         implemented_methods = dir(self._net_device)
+
+        if self._options:
+            kargs = self._options
 
         if not self._function and type(args) is not dict:
             self._function = self._getFunction(args)
