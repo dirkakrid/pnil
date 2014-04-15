@@ -11,17 +11,17 @@ class netDevice(object):
         Parent class switch, which other classes will inherit from,
         ie. arista, cisco, juniper and so on
     """
-    _net_device = None
-    _initialized = False
-    _created = False
-    _name = None
-    _host = None
-    _function = None
-    _manufacturer = None
-    _function_options = {'vrf': None, 'options': None}
-
     def __init__(self, args=None):
         super(netDevice, self).__init__()
+        self._net_device = None
+        self._created = False
+        self._name = None
+        self._host = None
+        self._function = None
+        self._manufacturer = None
+        self._initialized = False
+        self._function_options = {'vrf': None, 'options': None}
+    
         if args:
             self.parseArguments(args)
 
