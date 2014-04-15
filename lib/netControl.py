@@ -4,16 +4,22 @@
 from pnil.lib.eapi import eapi
 from pnil.lib.onepk import onepk
 from itertools import izip_longest
+import sys, string, random
 
 class netDevice(object):
     """
         Parent class switch, which other classes will inherit from,
         ie. arista, cisco, juniper and so on
     """
-    def __init__(self, host=None, manufacturer=None, name='net1'):
+    _name = None
+    _host = None
+    _function = None
+    _manufacturer = None
+
+    def __init__(self, args=None):
         super(netDevice, self).__init__()
-        if host and manufacturer:
-            self.initialize(host, manufacturer, name)
+        if args:
+            self.parseArguments(args)
         else:
             self._net_device = None
             self._initialized = False
@@ -67,27 +73,95 @@ class netDevice(object):
         else:
             raise Exception('Please enter the manufacturer information')
 
+    def _id_generator(self):
+        self._name = ''.join(random.choice('NET12345689') for _ in range(6))
+        return self._name
+
     # ----------------------------------------------------------------
     # Public / Unprotected Methods
     # ----------------------------------------------------------------
 
+    def parseArguments(self, args):
+        # sets dev_name if -n is used, otherwise generic 'dev' is used
+        if args['name']:
+            self._name = args['name']
+        else:
+            print('Device name not entered, picking random name')
+            self._id_generator()
+
+        # set the host from the list of args
+        if args['ip_address']:
+            self._host = args['ip_address'] 
+        elif args['hostname']:
+            self._host = args['hostname']
+        else:
+            print('Must specify the device to connected, please enter\
+                hostname or IP address.')
+            sys.exit(1)
+
+        # set the manufacturer to make calls on
+        if args['manufacturer']:
+            self._manufacturer = args['manufacturer'] 
+            self._createNetDevice(self._manufacturer)
+        else:
+            print('Remember to enter the manufacturer by passing the -m flag.')
+            print('Also see -h for help on supported arguments')
+            sys.exit(1)
+
+        # initializes the device on information passed
+        self.initialize(self._host)
+
+        username = args['username'] if args['username'] else None
+        password = args['password'] if args['password'] else None
+
+        if username and password:
+            self._net_device.setLogin(username, password)
+        elif username:
+            password = raw_input('Please enter password for {0}'.format(username))
+            self._net_device.setLogin(username, password)
+        else:
+            username = raw_input('Enter the username: ')
+            password = raw_input('Enter the password: ')
+            self._net_device.setLogin(username, password)
+
+        # sets the function(s) to be called if passed into the arguments
+        if args['function']:
+            self._function = self._getFunction(args['function'])
+
+        return self._net_device
+
+
     # decides which method to run based on self._api_call
     # methods can also be called directly, but this simplifies it to the "caller"
     # by only needing to know one function or the cli command to to call.
+    def initialize(self, host, manufacturer=None, name=None):
 
-    def initialize(self, host, manufacturer, name='net1'):
+        if not self._name and not name:
+            self._name = self._id_generator()
+        elif name:
+            self._name = name
+
         if self._created:
-            self._net_device.initialize(host, name)
+            self._net_device.initialize(host, self._name)
         elif not self._created and manufacturer:
             self.create(manufacturer)
-            self._net_device.initialize(host, name)
+            self._net_device.initialize(host, self._name)
         else:
             raise Exception('Must create device first, call create(manufacturer)')
 
         self._initialized = True
 
-    def setLogin(self, user, password):
-        self._net_device.setLogin(user, password)
+    def setLogin(self, username=None, password=None):
+
+        if username and password:
+            self._net_device.setLogin(username, password)
+        elif username:
+            password = raw_input('Please enter password for {0}'.format(username))
+            self._net_device.setLogin(username, password)
+        else:
+            username = raw_input('Enter the username: ')
+            password = raw_input('Enter the password: ')
+            self._net_device.setLogin(username, password)
 
     def create(self, manufacturer):
         if not self._created:
@@ -122,7 +196,7 @@ class netDevice(object):
 
         return new_calls
 
-    def run(self, function, args=None):
+    def run(self, args=None):
         '''
         Checks implemented_methods constant and tests if library has called method.
         otherwise terminates with mothod not implemented.
@@ -132,25 +206,29 @@ class netDevice(object):
             raise Exception("initialize device first, see help(netDevice) for more info")
 
         implemented_methods = dir(self._net_device)
-        func_call = self._getFunction(function)
 
-        result = [] if len(func_call) > 1 else None
+        if not self._function and type(args) is not dict:
+            self._function = self._getFunction(args)
+        elif not self._function and type(args) is dict:
+            self._function = self._getFunction(args['function'])
 
-        if len(func_call) > 1:
-            for call in func_call:
+        result = [] if len(self._function) > 1 else None
+
+        if len(self._function) > 1:
+            for call in self._function:
                 if call not in implemented_methods:
                     self.displayError()
                     continue
                 result.append(getattr(self._net_device, call)())
         else:
-            if func_call[0] not in implemented_methods:
+            if self._function[0] not in implemented_methods:
                 self.displayError()
             elif args is not None:
                 if args['vrf'] or args['options']:
-                    result = getattr(self._net_device, func_call[0])(args)
+                    result = getattr(self._net_device, self._function[0])(args)
                 else:
-                    result = getattr(self._net_device, func_call[0])()
+                    result = getattr(self._net_device, self._function[0])()
             else:
-                result = getattr(self._net_device, func_call[0])()
+                result = getattr(self._net_device, self._function[0])()
 
         return result

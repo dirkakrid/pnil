@@ -37,8 +37,8 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
         def __init__(self):
             super(eapi, self).__init__()
             self._host = None
-            self._user = 'admin'
-            self._pass = 'arista'
+            self._username = None
+            self._password = None
             self._switch = None
             self._name = None
             self._version_info = None
@@ -54,7 +54,7 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
         def _connectToSwitch(self):
             try:
                 return Server('https://{0}:{1}@{2}/command-api\
-                    '.format(self._user, self._pass, self._host))
+                    '.format(self._username,self._password, self._host))
             except Exception as e:
                 print ('There was an error trying to connect: {}'.format(e))
 
@@ -106,7 +106,7 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
                 print ('Could not connect, error: {0}'.format(e))
 
         def setLogin(self, username, password):
-            self._user, self._pass = username, password
+            self._username,self._password = username, password
 
         def initialize(self, host, name):
             self._host = host

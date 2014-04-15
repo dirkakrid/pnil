@@ -86,10 +86,9 @@ def main():
     '''
     if ARISTA and ARGUMENTS:
         args = initArgs()
-        function = args['function'] if args['function'] else None
 
-        sw1 = build(args)
-        result = sw1.run(function, args)
+        sw1 = netDevice(args)
+        result = sw1.run(args)
 
         printResult(result)
 
