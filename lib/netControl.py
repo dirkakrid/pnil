@@ -199,7 +199,18 @@ class netDevice(object):
 
         return new_calls
 
-    def run(self, args=None, function_options=None):
+    @classmethod
+    def _getCMDOptions(cls, func_options):
+        if func_options['vrf'] and func_options['options']:
+            new_opts = ' '.join(['vrf', func_options['vrf'], func_options['options']])
+        elif func_options['vrf']:
+            new_opts = ' '.join(['vrf', func_options['vrf']])
+        elif func_options['options']:
+            new_opts = ' '.join([func_options['options']])
+
+        return new_opts
+
+    def run(self, function=None, function_options=None):
         '''
         Checks implemented_methods constant and tests if library has called method.
         otherwise terminates with mothod not implemented.
@@ -213,10 +224,10 @@ class netDevice(object):
         if function_options:
             self._function_options = function_options
 
-        if not self._function and type(args) is not dict:
-            self._function = self._getFunction(args)
-        elif not self._function and type(args) is dict:
-            self._function = self._getFunction(args['function'])
+        if not self._function and type(function) is not dict:
+            self._function = self._getFunction(function)
+        elif not self._function and type(function) is dict:
+            self._function = self._getFunction(function['function'])
 
         result = [] if len(self._function) > 1 else None
 
@@ -226,15 +237,12 @@ class netDevice(object):
                     self.displayError()
                     continue
                 result.append(getattr(self._net_device, call)())
+        elif self._function[0] not in implemented_methods:
+            self.displayError()
+        elif self._function_options['vrf'] or self._function_options['options']:
+            new_opts = self._getCMDOptions(self._function_options)
+            result = getattr(self._net_device, self._function[0])(new_opts)
         else:
-            if self._function[0] not in implemented_methods:
-                self.displayError()
-            elif self._function_options:
-                if self._function_options['vrf'] or self._function_options['options']:
-                    result = getattr(self._net_device, self._function[0])(self._function_options)
-                else:
-                    result = getattr(self._net_device, self._function[0])()
-            else:
-                result = getattr(self._net_device, self._function[0])()
+            result = getattr(self._net_device, self._function[0])()
 
         return result

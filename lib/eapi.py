@@ -250,16 +250,10 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
         # FIND ROUTING INFORMATION
         # ----------------------------------------------------------------
 
-        def getRoutes(self, args=None):
-            if args and args['vrf'] and args['options']:
-                routes = self._runCmdText(['show ip route vrf {0} {1}\
-                    '.format(args['vrf'], args['options'])])[0]['output']
-            elif args and args['vrf']:
-                routes = self._runCmdText(['show ip route vrf {0}\
-                    '.format(args['vrf'])])[0]['output']
-            elif args and args['options']:
+        def getRoutes(self, options=None):
+            if options:
                 routes = self._runCmdText(['show ip route {0}\
-                    '.format(args['options'])])[0]['output']
+                    '.format(options)])[0]['output']
             else:
                 routes = self._runCmdText(['show ip route'])[0]['output']
             
