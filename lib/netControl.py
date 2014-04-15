@@ -5,6 +5,7 @@ from pnil.lib.eapi import eapi
 from pnil.lib.onepk import onepk
 from itertools import izip_longest
 import sys, string, random
+import re
 
 class netDevice(object):
     """
@@ -189,8 +190,9 @@ class netDevice(object):
     @classmethod
     def _getFunction(cls, func):
         
-        func_calls = func.split(',')
+        func_calls = re.split(r'\W+', func)
         new_calls = []
+        
         if len(func_calls) > 1:
             for call in func_calls:
                 new_calls.append(call.lstrip().rstrip())
