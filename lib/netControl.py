@@ -84,11 +84,12 @@ class netDevice(object):
     # ----------------------------------------------------------------
 
     def parseArguments(self, args):
-        # sets dev_name if -n is used, otherwise generic 'dev' is used
+        # sets dev_name if -n is used
         if args['name']:
             self._name = args['name']
+        # if -n is not used, then a random generated ID will be assigned
         else:
-            print('Device name not entered, picking random name')
+            # print('Device name not entered, picking random name')
             self._id_generator()
 
         # set the host from the list of args
@@ -192,7 +193,7 @@ class netDevice(object):
         
         func_calls = re.split(r'\W+', func)
         new_calls = []
-        
+
         if len(func_calls) > 1:
             for call in func_calls:
                 new_calls.append(call.lstrip().rstrip())
