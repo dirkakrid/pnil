@@ -139,10 +139,10 @@ class netDevice(object):
     # by only needing to know one function or the cli command to to call.
     def initialize(self, host, manufacturer=None, name=None):
 
-        if not self._name and not name:
-            self._name = self._id_generator()
-        elif name:
+        if name:
             self._name = name
+        elif not self._name and not name:
+            self._name = self._id_generator()
 
         if self._created:
             self._net_device.initialize(host, self._name)
