@@ -15,7 +15,9 @@
 
 # ----------------------------------------------------------------
 
+from __future__ import print_function
 import sys
+
 if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
     # ----------------------------------------------------------------
     # Import Server JSON RPC library

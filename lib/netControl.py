@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 
+from __future__ import print_function
 from pnil.lib.eapi import eapi
 from pnil.lib.onepk import onepk
 from pnil.utils.tools import initArgs
@@ -19,10 +20,10 @@ class netDevice(object):
         self._created = False
         self._name = None
         self._host = None
-        self._function = None
+        self._method = None
         self._manufacturer = None
         self._initialized = False
-        self._function_options = {'vrf': None, 'options': None}
+        self._method_options = {'vrf': None, 'options': None}
     
         if USE_ARGS == True:
             args = initArgs()
@@ -129,20 +130,20 @@ class netDevice(object):
             password = raw_input('Enter the password: ')
             self._net_device.setLogin(username, password)
 
-        # sets the function(s) to be called if passed into the arguments
+        # sets the method(s) to be called if passed into the arguments
         if args['function'] and args['vrf'] or args['options']:
-            self._function = self._findFunction(args['function'])
-            self._function_options['vrf'] = args['vrf'] if args['vrf'] else None
-            self._function_options['options'] = args['options'] if args['options'] else None
+            self._method = self._findMethod(args['function'])
+            self._method_options['vrf'] = args['vrf'] if args['vrf'] else None
+            self._method_options['options'] = args['options'] if args['options'] else None
         elif args['function']:
-            self._function = self._findFunction(args['function'])
+            self._method = self._findMethod(args['function'])
 
         return self._net_device
 
 
     # decides which method to run based on self._api_call
     # methods can also be called directly, but this simplifies it to the "caller"
-    # by only needing to know one function or the cli command to to call.
+    # by only needing to know one method or the cli command to to call.
     def initialize(self, host, manufacturer=None, name=None):
 
         if name:
@@ -179,7 +180,7 @@ class netDevice(object):
             return self._net_device
 
     @classmethod
-    def _findFunction(cls, func):
+    def _findMethod(cls, func):
         
         func_calls = re.split(r'\W+', func)
         new_calls = []
@@ -203,7 +204,7 @@ class netDevice(object):
 
         return new_opts
 
-    def run(self, function=None, function_options=None):
+    def run(self, method=None, method_options=None):
         '''
         Checks implemented_methods constant and tests if library has called method.
         otherwise terminates with mothod not implemented.
@@ -214,19 +215,19 @@ class netDevice(object):
 
         implemented_methods = dir(self._net_device)
 
-        if function_options:
-            self._function_options = function_options
+        if method_options:
+            self._method_options = method_options
 
-        if not self._function and type(function) is not dict:
-            self._function = self._findFunction(function)
-        elif not self._function and type(function) is dict:
-            self._function = self._findFunction(function['function'])
+        if not self._method and type(method) is not dict:
+            self._method = self._findMethod(method)
+        elif not self._method and type(method) is dict:
+            self._method = self._findMethod(method['method'])
 
-        result = [] if len(self._function) > 1 else {}
+        result = [] if len(self._method) > 1 else {}
 
         counter = 1
-        if len(self._function) > 1:
-            for call in self._function:
+        if len(self._method) > 1:
+            for call in self._method:
                 if call not in implemented_methods:
                     result.append({counter: {'method_not_found': [call]}})
                     counter += 1
@@ -234,12 +235,12 @@ class netDevice(object):
                     result.append({counter: getattr(self._net_device, call)()})
                     counter += 1
 
-        elif self._function[0] not in implemented_methods:
-            result.update({'method_not_found': self._function[0]})
-        elif self._function_options['vrf'] or self._function_options['options']:
-            new_opts = self._findCMDOptions(self._function_options)
-            result = getattr(self._net_device, self._function[0])(new_opts)
+        elif self._method[0] not in implemented_methods:
+            result.update({'method_not_found': self._method[0]})
+        elif self._method_options['vrf'] or self._method_options['options']:
+            new_opts = self._findCMDOptions(self._method_options)
+            result = getattr(self._net_device, self._method[0])(new_opts)
         else:
-            result = getattr(self._net_device, self._function[0])()
+            result = getattr(self._net_device, self._method[0])()
 
         return result
