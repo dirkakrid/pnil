@@ -238,12 +238,17 @@ class netDevice(object):
 
         result = [] if len(self._function) > 1 else None
 
+        counter = 1
         if len(self._function) > 1:
             for call in self._function:
                 if call not in implemented_methods:
-                    self.displayError()
-                    continue
-                result.append(getattr(self._net_device, call)())
+                    # self.displayError()
+                    result.append({counter: {'not_found': [call]}})
+                    counter += 1
+                else:
+                    result.append({counter: getattr(self._net_device, call)()})
+                    counter += 1
+
         elif self._function[0] not in implemented_methods:
             self.displayError()
         elif self._function_options['vrf'] or self._function_options['options']:
