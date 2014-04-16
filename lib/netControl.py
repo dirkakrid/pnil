@@ -178,20 +178,6 @@ class netDevice(object):
         else:
             return self._net_device
 
-    def displayError(self):
-        print ('****************************************************************')
-        print ('\n')
-        print ('IP Address (-i), manufacturer (-m), AND one of')
-        print ('the following functions (-f) are required')
-        print ('Use \'python main.py -h\' for more info on proper usage')
-        print ('The function called is not in the methods implemented')
-        print ('\n')
-        print ('*************************SEE BELOW****************************')
-        funcs = dir(self._net_device)
-        for each in funcs:
-            if not (each.startswith('__') or each.startswith('_')):
-                print ('*** ' + each)
-
     @classmethod
     def _findFunction(cls, func):
         
@@ -236,21 +222,20 @@ class netDevice(object):
         elif not self._function and type(function) is dict:
             self._function = self._findFunction(function['function'])
 
-        result = [] if len(self._function) > 1 else None
+        result = [] if len(self._function) > 1 else {}
 
         counter = 1
         if len(self._function) > 1:
             for call in self._function:
                 if call not in implemented_methods:
-                    # self.displayError()
-                    result.append({counter: {'not_found': [call]}})
+                    result.append({counter: {'method_not_found': [call]}})
                     counter += 1
                 else:
                     result.append({counter: getattr(self._net_device, call)()})
                     counter += 1
 
         elif self._function[0] not in implemented_methods:
-            self.displayError()
+            result.update({'method_not_found': self._function[0]})
         elif self._function_options['vrf'] or self._function_options['options']:
             new_opts = self._findCMDOptions(self._function_options)
             result = getattr(self._net_device, self._function[0])(new_opts)
