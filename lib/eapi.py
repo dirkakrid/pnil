@@ -117,7 +117,9 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
         def findUptime(self):
             output = eapi._runCMDText(self, ['show uptime'])[0]['output']
             # finds uptime if output is in H:M or (|) in "number Mins|Days"
-            uptime = re.search(r"(?<=up\s{2})([\d:]+(?=\s?,))|(?<=up\s{2})[\d]+\s\w+(?=\s?\,)", output).group(0)
+            up_split = re.split(r"up\s+?", output)
+
+            uptime = re.match(r'(^(\d{1,3}:\d{1,3})|^(\d{1,3})\s\w+)', up_split[1]).group(0)
             return eapi.createDataDict('uptime', uptime)
 
         def findCPU(self):
