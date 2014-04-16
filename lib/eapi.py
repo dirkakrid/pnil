@@ -36,20 +36,9 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
     # Configuration section
     # ----------------------------------------------------------------
 
-    class eapiVars(object):
-        def __init__(self):
-            super(eapiVars, self).__init__()
-            self._host = None
-            self._username = None
-            self._password = None
-            self._switch = None
-            self._name = None
-            self._version_info = None
-            self._connected = False
-
     # ----------------------------------------------------------------
 
-    class eapiInfo(eapiVars):
+    class eapiInfo(object):
         """docstring for eapiInfo"""
         def __init__(self):
             super(eapiInfo, self).__init__()
@@ -229,7 +218,7 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
     # ----------------------------------------------------------------
 
                         
-    class eapiRouting(eapiVars):
+    class eapiRouting(object):
         """docstring for eapiRouting"""
         def __init__(self):
             super(eapiRouting, self).__init__()
@@ -261,6 +250,13 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
         """docstring for arista"""
         def __init__(self):
             super(eapi, self).__init__()
+            self._host = None
+            self._username = None
+            self._password = None
+            self._switch = None
+            self._name = None
+            self._version_info = None
+            self._connected = False
 
         def __str__(self):
             return str(self.getDetails())
