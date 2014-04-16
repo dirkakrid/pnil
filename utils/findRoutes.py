@@ -37,7 +37,7 @@ class standardRoutes(object):
         super(standardRoutes, self).__init__()
 
     @classmethod
-    def getRoutesProtocol(cls, search_list):
+    def findRoutesProtocol(cls, search_list):
         protocols = []
         for p in search_list:
             p_match = PROTOCOL_RE.search(p)
@@ -52,13 +52,13 @@ class standardRoutes(object):
         return protocols
 
     @classmethod
-    def getRoutePrefixes(cls, search_list):
+    def findRoutePrefixes(cls, search_list):
         prefixes = []
         for p in search_list:
             # The test for protocol first in the prefix line is necessary
             # the regEX matching the prefix, sometimes matches an un-necessary line
             # such as 10.0.0.0/8 is variably subneted, under this line, are the actual prefixes
-            protocol = cls.getRoutesProtocol([p])
+            protocol = cls.findRoutesProtocol([p])
             if protocol:
                 pr_match = PREFIX_RE.search(p)
                 if pr_match:
@@ -67,7 +67,7 @@ class standardRoutes(object):
         return prefixes
 
     @classmethod
-    def getADMetric(cls, search_list):
+    def findADMetric(cls, search_list):
         admetric = []
         for ad in search_list:
             ad_match = AD_METRIC_RE.search(ad)
@@ -79,7 +79,7 @@ class standardRoutes(object):
         return admetric
 
     @classmethod
-    def getNextHop(cls, search_list):
+    def findNextHop(cls, search_list):
         next_hop = []
         for n in search_list:
             # finditer returns an iterator if match is found
@@ -94,7 +94,7 @@ class standardRoutes(object):
         return next_hop
 
     @classmethod
-    def getNextHopInterface(cls, search_list):
+    def findNextHopInterface(cls, search_list):
         next_hop_int = []
         for n in search_list:
             # finditer returns an iterator if match is found
@@ -110,7 +110,7 @@ class standardRoutes(object):
 
     @classmethod
     def createRoutesList(cls, routes):
-        # form the list of routes and get rid of unnecessary top lines
+        # form the list of routes and find rid of unnecessary top lines
         routes_list = routes.splitlines()
         routes_list = routes_list[6:]
 
@@ -138,21 +138,21 @@ class standardRoutes(object):
         return routes_list
 
     @classmethod
-    def getRoutes(cls, routes):
+    def findRoutes(cls, routes):
         routes_list = cls.createRoutesList(routes)
 
-        p_keys = cls.getRoutesProtocol(routes_list)
+        p_keys = cls.findRoutesProtocol(routes_list)
         routes_dict = {key: {} for key in p_keys}
 
         for line in routes_list:
-            p_key = cls.getRoutesProtocol([line])
-            prefix = cls.getRoutePrefixes([line])
+            p_key = cls.findRoutesProtocol([line])
+            prefix = cls.findRoutePrefixes([line])
 
             # if p_match and pr_match:
             if p_key and prefix:
-                ad_metric = cls.getADMetric([line])
-                next_hop = cls.getNextHop([line])
-                next_hop_int = cls.getNextHopInterface([line])
+                ad_metric = cls.findADMetric([line])
+                next_hop = cls.findNextHop([line])
+                next_hop_int = cls.findNextHopInterface([line])
                 routes_dict[p_key[0]][prefix[0]] = {'ad_metric': ad_metric[0],
                                                         'next_hop': next_hop,
                                                         'next_hop_int': next_hop_int

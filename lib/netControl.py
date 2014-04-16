@@ -131,11 +131,11 @@ class netDevice(object):
 
         # sets the function(s) to be called if passed into the arguments
         if args['function'] and args['vrf'] or args['options']:
-            self._function = self._getFunction(args['function'])
+            self._function = self._findFunction(args['function'])
             self._function_options['vrf'] = args['vrf'] if args['vrf'] else None
             self._function_options['options'] = args['options'] if args['options'] else None
         elif args['function']:
-            self._function = self._getFunction(args['function'])
+            self._function = self._findFunction(args['function'])
 
         return self._net_device
 
@@ -193,7 +193,7 @@ class netDevice(object):
                 print ('*** ' + each)
 
     @classmethod
-    def _getFunction(cls, func):
+    def _findFunction(cls, func):
         
         func_calls = re.split(r'\W+', func)
         new_calls = []
@@ -207,7 +207,7 @@ class netDevice(object):
         return new_calls
 
     @classmethod
-    def _getCMDOptions(cls, func_options):
+    def _findCMDOptions(cls, func_options):
         if func_options['vrf'] and func_options['options']:
             new_opts = ' '.join(['vrf', func_options['vrf'], func_options['options']])
         elif func_options['vrf']:
@@ -232,9 +232,9 @@ class netDevice(object):
             self._function_options = function_options
 
         if not self._function and type(function) is not dict:
-            self._function = self._getFunction(function)
+            self._function = self._findFunction(function)
         elif not self._function and type(function) is dict:
-            self._function = self._getFunction(function['function'])
+            self._function = self._findFunction(function['function'])
 
         result = [] if len(self._function) > 1 else None
 
@@ -247,7 +247,7 @@ class netDevice(object):
         elif self._function[0] not in implemented_methods:
             self.displayError()
         elif self._function_options['vrf'] or self._function_options['options']:
-            new_opts = self._getCMDOptions(self._function_options)
+            new_opts = self._findCMDOptions(self._function_options)
             result = getattr(self._net_device, self._function[0])(new_opts)
         else:
             result = getattr(self._net_device, self._function[0])()
