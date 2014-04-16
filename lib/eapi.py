@@ -45,27 +45,27 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
         def __init__(self):
             super(eapiInfo, self).__init__()
 
-        def findHost(self):
+        def getHost(self):
             return eapi.createDataDict('host', self._host)
 
         def _versionList(self):
             '''
-                finds version and converts to a list of Ivalues
+                gets version and converts to a list of Ivalues
                 this allows comparisons between software versions
                 by calling int(on an index)
             '''
 
             # checks if self._version_info is not empy
             if not self._version_info:
-                self.findVersionInfo()
+                self.getVersionInfo()
 
             version_list = self._version_info['version'].split('.')
             return version_list
 
-        # findVersionInfo created to streamline the calling of "show version"
+        # getVersionInfo created to streamline the calling of "show version"
         # there was allot of code that repeated it, this way, only one call is needed
         # speeds up the process and makes it more efficient.
-        def findVersionInfo(self):
+        def getVersionInfo(self):
             ''' returns a 'show version' output as a dictionary '''
 
             # normaly returns list with dictionary.
@@ -75,34 +75,34 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
             #returns only dict of relevant information
             return self._version_info
 
-        def findName(self):
+        def getName(self):
             return eapi.createDataDict('name', self._name)
 
-        def findVersion(self):
+        def getVersion(self):
             ''' Returns the device running code version as a string '''
 
             # checks if self._version_info is not empy
             if not self._version_info:
-                self.findVersionInfo()
+                self.getVersionInfo()
 
             return eapi.createDataDict('version', self._version_info['version'])
 
         # function returns a dictionary of the interfaces and their status
-        def findInterfacesStatus(self):
+        def getInterfacesStatus(self):
             response = eapi._runCMD(self, ['show interfaces status'])[0]['interfaceStatuses']
 
             return response
 
-        def findPlatform(self):
+        def getPlatform(self):
             if not self._version_info:
-                self.findVersionInfo()
+                self.getVersionInfo()
 
             return eapi.createDataDict('platform', self._version_info['modelName'])
 
-        def findSerialNumber(self):
+        def getSerialNumber(self):
 
             if not self._version_info:
-                self.findVersionInfo()
+                self.getVersionInfo()
 
             serial = self._version_info['serialNumber']
 
@@ -114,21 +114,21 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
             else:
                 return serial_number
 
-        def findUptime(self):
+        def getUptime(self):
             output = eapi._runCMDText(self, ['show uptime'])[0]['output']
-            # finds uptime if output is in H:M or (|) in "number Mins|Days"
+            # gets uptime if output is in H:M or (|) in "number Mins|Days"
             up_split = re.split(r"up\s+?", output)
 
             uptime = re.match(r'(^(\d{1,3}:\d{1,3})|^(\d{1,3})\s\w+)', up_split[1]).group(0)
             return eapi.createDataDict('uptime', uptime)
 
-        def findCPU(self):
+        def getCPU(self):
             output = eapi._runCMDText(self, ['show processes top once'])[0]['output']
             
             cpu = re.search(r"\d+\.\d*%(?=us)", output).group(0)
             return eapi.createDataDict('cpu_usage', cpu)
 
-        def findHostname(self):
+        def getHostname(self):
             ''' Returns the device's none FQDN hostname '''
 
             version_int = self._versionList()
@@ -142,7 +142,7 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
                 host = re.search(r"(?<=System Name: \").*?(?=\.)", output).group(0)
                 return eapi.createDataDict('hostname', host)
 
-        def findFQDN(self):
+        def getFQDN(self):
             '''
                 Returns the device's FQDN hostname.domain.suffix
                 has not been added to main.py yet, waiting to make sure
@@ -160,51 +160,51 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
                 fqdn = re.search(r"(?<=System Name: \").*?(?=\")", output).group(0)
                 return eapi.createDataDict('fqdn', fqdn)
 
-        def findAAA(self):
+        def getAAA(self):
             aaa = eapi._runCMD(self, ['enable', 'show aaa'])[1]['users']
             return aaa
 
-        def findFreeMem(self):
+        def getFreeMem(self):
 
             # checks if self._version_info is not empy
             if not self._version_info:
-                self.findVersionInfo()
+                self.getVersionInfo()
 
             return eapi.createDataDict('free_memory', self._version_info['memFree'])
 
-        def findTotalMem(self):
+        def getTotalMem(self):
 
             # checks if self._version_info is not empy
             if not self._version_info:
-                self.findVersionInfo()
+                self.getVersionInfo()
 
             return eapi.createDataDict('total_memory', self._version_info['memTotal'])
 
-        def findSystemMac(self):
+        def getSystemMac(self):
             if not self._version_info:
-                self.findVersionInfo()
+                self.getVersionInfo()
 
             return eapi.createDataDict('system_mac', self._version_info['systemMacAddress'])
 
 
-        def findDetails(self):
+        def getDetails(self):
 
-            # moved findVersionInfo() so this information finds refreshed as well
+            # moved getVersionInfo() so this information gets refreshed as well
             # and to remove the redundancy of __init__
-            self.findVersionInfo()
+            self.getVersionInfo()
 
             items = (
-                self.findVersion(),
-                self.findCPU(),
-                self.findFreeMem(),
-                self.findTotalMem(),
-                self.findUptime(),
-                self.findPlatform(),
-                self.findSerialNumber(),
-                self.findHost(),
-                self.findHostname(),
-                self.findName(),
-                self.findSystemMac()
+                self.getVersion(),
+                self.getCPU(),
+                self.getFreeMem(),
+                self.getTotalMem(),
+                self.getUptime(),
+                self.getPlatform(),
+                self.getSerialNumber(),
+                self.getHost(),
+                self.getHostname(),
+                self.getName(),
+                self.getSystemMac()
                 )
 
             details = {}
@@ -228,19 +228,19 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
             super(eapiRouting, self).__init__()
 
         # ----------------------------------------------------------------
-        # FIND ROUTING INFORMATION
+        # get ROUTING INFORMATION
         # ----------------------------------------------------------------
 
-        def findRoutes(self, options=None):
+        def getRoutes(self, options=None):
             if options:
                 routes = eapi._runCMDText(self, ['show ip route {0}\
                     '.format(options)])[0]['output']
             else:
                 routes = eapi._runCMDText(self, ['show ip route'])[0]['output']
             
-            return standardRoutes.findRoutes(routes)
+            return standardRoutes.getRoutes(routes)
 
-        def findARP(self, options=None):
+        def getARP(self, options=None):
             if options:
                 return eapi._runCMD(self, ['show arp {0}\
                     '.format(options)])[0]
@@ -263,7 +263,7 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
             self._connected = False
 
         def __str__(self):
-            return str(self.findDetails())
+            return str(self.getDetails())
 
         # ----------------------------------------------------------------
         # "Private / Protected" Methods
