@@ -9,22 +9,22 @@ import shlex
 # ----------------------------------------------------------------
 
 # FOR IOS / ARISTA
-PROTOCOL_RE = re.compile(r'(?<=\s)(([\w])|([\w]\s[\w]+[\d]?)|([\w]+?\*))(?=\s+[\d]+\.)', re.I)
-PREFIX_RE = re.compile(r'(([\d]{1,3}\.){3}([\d]{1,3}){1}((/[\d]{1,2})?)((?=\s?\[)|(?=\sis)))', re.I)
+PROTOCOL_RE = re.compile(r'(?<=\s)(?:([\w])|(?:[\w]\s[\w]+[\d]?)|(?:[\w]+?\*))(?=\s+[\d]+\.)', re.I)
+PREFIX_RE = re.compile(r'((?:[\d]{1,3}\.){3}(?:[\d]{1,3}){1}((?:/[\d]{1,2})?)((?=\s?\[)|(?=\sis)))', re.I)
 # -----------------
 
 # FOR NX-OS DEVICES
-PREFIX_NX_RE = re.compile(r'(([\d]{1,3}\.){3}([\d]{1,3}){1}(/[\d]{1,2}))')
-PROTOCOL_NX_RE = re.compile(r'(((\w+-\d{1,5}),\s\w+((\w+)(-\d{1})?)))|direct|local|hsrp|glbp', re.I)
+PREFIX_NX_RE = re.compile(r'((?:[\d]{1,3}\.){3}(?:[\d]{1,3}){1}(?:/[\d]{1,2}))')
+PROTOCOL_NX_RE = re.compile(r'(((?:\w+-\d{1,5}),\s\w+((?:\w+)(?:-\d{1})?)))|direct|local|hsrp|glbp', re.I)
 # -----------------
 
 # AD_METRIC WORKS ON IOS/ARISTA AND NX-OS
-AD_METRIC_RE = re.compile(r'(?<=\[)([0-9]{1,3}/[0-9]{1,3})(?=\])', re.I)
+AD_METRIC_RE = re.compile(r'(?<=\[)(?:[0-9]{1,3}/[0-9]{1,3})(?=\])', re.I)
 # ---------------------------------------
 
 # NEXTHOP_IP WORKS ON IOS/ARISTA AND NX-OS
-NEXTHOP_IP = re.compile(r'(((?<=[\w]{3}\s)(([\d]{1,3}\.){3}[\d]{1,3})(?=,))|connected)', re.I)
-NEXTHOP_INT_RE = re.compile(r'((?<=\d,\s)|(?<=connected,\s))(([\w])+([\d]{1,3})(/?)([\d]{1,3})?(/?)([\d]{1,3})?(/?)([\d]{1,3})?)|Null0', re.IGNORECASE)
+NEXTHOP_IP = re.compile(r'(((?<=[\w]{3}\s)(?:(?:[\d]{1,3}\.){3}[\d]{1,3})(?=,))|connected)', re.I)
+NEXTHOP_INT_RE = re.compile(r'((?<=\d,\s)|(?<=connected,\s))((?:[\w])+(?:[\d]{1,3})(?:/?)(?:[\d]{1,3})?(?:/?)(?:[\d]{1,3})?(?:/?)(?:[\d]{1,3})?)|Null0', re.IGNORECASE)
 # ---------------------------------------
 
 

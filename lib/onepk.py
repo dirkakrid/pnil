@@ -31,24 +31,31 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
         def __init__(self):
             super(onepk, self).__init__()
             self._host = None
-            self._user = 'cisco'
-            self._pass = 'cisco'
+            self._username = 'cisco'
+            self._password = 'cisco'
             self._device = None
             self._name = None
             self._version_info = None
             self._connected = False
+            self.myapp = NetworkApplication.get_instance()
+            if not self.myapp.name == "PNIL-ONEP":
+                self.myapp.name = "PNIL-ONEP"
+
+        def __del__(self):
+            self._device.disconnect()
 
         def connect(self):
 
             session_config = SessionConfig(
-            SessionConfig.SessionTransportMode.TLS)
+                SessionConfig.SessionTransportMode.TLS)
             session_config.ca_certs = "/usr/local/certs/csr1kv-01.pem"
             ne = self.myapp.get_network_element(self._host)
 
             if not ne.is_connected():
                 try:
                     session_handle = ne.connect(
-                        self._user, self._pass, session_config)
+                        self._username, self._password, session_config)
+                    self._connected = True
                 except OnepDuplicateElementException, e:
                     # print e
                     existing = e.get_original_network_element()
@@ -64,12 +71,21 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
 
             return ne
 
-        def setLogin(self, username, password):
-            self._user = username
-            self._pass = password
+        def initialize(self, host, name):
+            self._host = host
+            self._name = name
+            self._device = self.connect()
 
-        def getserialNumber(self):
-            return self._device.properties.SerialNo
+        def setLogin(self, username, password):
+            self._username = username
+            self._password = password
+
+        @classmethod
+        def createDataDict(cls, key, value):
+            return {key: value}
+
+        def getSerialNumber(self):
+            return self.createDataDict('serial_number', self._device.properties.SerialNo)
 
         def getCPU(self):
             return self._device.system_cpu_utilization
@@ -112,7 +128,7 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
 
         def getInterfaces(self):
             ifilter = InterfaceFilter()
-            return self._device.get_interface_dict(ifilter).keys()
+            return self.createDataDict('interfaces', self._device.get_interface_dict(ifilter).keys())
 
         def getInterfaceDetail(self):
             ifilter = InterfaceFilter()
@@ -170,7 +186,7 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
             hostname = self.getHostname()
             uptime = self.getUptime()
             platform = self.getPlatform()
-            serial_number = self.getserialNumber()
+            serial_number = self.getSerialNumber()
             reboot_reason = self.getReasonforReboot()
             connect_ip = self._host
             interfaces = self.getInterfaces()

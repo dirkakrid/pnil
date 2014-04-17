@@ -14,8 +14,8 @@ from pnil.utils.findRoutes import standardRoutes
 # -------------------
 # GLOBAL VARIABLES FOR PRINTING AND RUNNING
 # -------------------
-ARISTA = True
-CISCO_IOS = False
+ARISTA = False
+CISCO_ONEP = False if ARISTA else True
 USE_ARGS = True
 # -------------------
 
@@ -42,10 +42,23 @@ def main():
 
         printResult(result)
 
+    if CISCO_ONEP and USE_ARGS == True:
+        cisco1 = netDevice(USE_ARGS)
+        result = cisco1.run()
 
-    # Till I figure out the paramiko exception, raw data input
-    if CISCO_IOS:
-        pass
+        printResult(result)
+
+
+    if CISCO_ONEP and USE_ARGS == False:
+        cisco1 = netDevice()
+        cisco1.initialize('csr1kv-01', 'cisco', 'cisco1')
+        cisco1.setLogin('cisco', 'cisco')
+        function = 'getDetails'
+        kargs = {'vrf': None, 'options': None}
+        result = cisco1.run(function)
+        # result = cisco1.run(function, kargs)
+
+        printResult(result)
 
 
 if __name__ == '__main__':
