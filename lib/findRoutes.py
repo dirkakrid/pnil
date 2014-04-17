@@ -18,8 +18,9 @@ PREFIX_NX_RE = re.compile(r'((?:[\d]{1,3}\.){3}(?:[\d]{1,3}){1}(?:/[\d]{1,2}))')
 PROTOCOL_NX_RE = re.compile(r'(((?:\w+-\d{1,5}),\s\w+((?:\w+)(?:-\d{1})?)))|direct|local|hsrp|glbp', re.I)
 # -----------------
 
-# AD_METRIC WORKS ON IOS/ARISTA AND NX-OS
-AD_METRIC_RE = re.compile(r'(?<=\[)(?:[0-9]{1,3}/[0-9]{1,3})(?=\])', re.I)
+# AD AND METRIC WORKS ON IOS/ARISTA AND NX-OS
+METRIC_RE = re.compile(r'(?<=\[)(?:[0-9]{1,3})', re.I)
+ADMIN_DISTANCE_RE = re.compile(r'(?<=/)(?:[0-9]{1,7})(?=])')
 # ---------------------------------------
 
 # NEXTHOP_IP WORKS ON IOS/ARISTA AND NX-OS
@@ -67,17 +68,42 @@ class standardRoutes(object):
 
         return prefixes
 
-    @classmethod
-    def getADMetric(cls, search_list):
-        ad_metric = []
-        for ad in search_list:
-            ad_match = AD_METRIC_RE.search(ad)
-            if ad_match:
-                ad_metric.append(ad_match.group(0))
-            else:
-                ad_metric.append('0/0')
+    # @classmethod
+    # def getADMetric(cls, search_list):
+    #     ad_metric = []
+    #     for ad in search_list:
+    #         ad_match = AD_METRIC_RE.search(ad)
+    #         if ad_match:
+    #             ad_metric.append(ad_match.group(0))
+    #         else:
+    #             ad_metric.append('0/0')
 
-        return ad_metric
+    #     return ad_metric
+
+    @classmethod
+    def getAdminDistance(cls, search_list):
+        admin_distance = []
+        for ad in search_list:
+            ad_match = ADMIN_DISTANCE_RE.search(ad)
+            if ad_match:
+                admin_distance.append(ad_match.group(0))
+                print ad_match.groups()
+            else:
+                admin_distance.append('0')
+
+        return admin_distance
+
+    @classmethod
+    def getMetric(cls, search_list):
+        metric = []
+        for m in search_list:
+            m_match = METRIC_RE.search(m)
+            if m_match:
+                metric.append(m_match.group(0))
+            else:
+                metric.append('0')
+
+        return metric
 
     @classmethod
     def getNextHop(cls, search_list):
@@ -151,10 +177,12 @@ class standardRoutes(object):
 
             # if p_match and pr_match:
             if p_key and prefix:
-                ad_metric = cls.getADMetric([line])
+                admin_distance = cls.getAdminDistance([line])
+                metric = cls.getMetric([line])
                 next_hop = cls.getNextHop([line])
                 next_hop_int = cls.getNextHopInterface([line])
-                routes_dict[p_key[0]][prefix[0]] = {'ad_metric': ad_metric[0],
+                routes_dict[p_key[0]][prefix[0]] = {'admin_distance': admin_distance,
+                                                        'metric': metric,
                                                         'next_hop': next_hop,
                                                         'next_hop_int': next_hop_int
                                             }
