@@ -1,0 +1,27 @@
+# Steps to connect to router via onePK api
+
+# Cisco Router
+
+crypto key generate rsa label ONEP modulus 1024
+!
+crypto pki trustpoint ONEP
+ enrollment selfsigned
+ fqdn csr1kv-01
+ ip-address 192.168.31.31
+ subject-name cn=csr1kv-01
+ revocation-check none
+ rsakeypair ONEP
+!
+crypto pki enroll ONEP
+crypto pki export ONEP pem terminal
+!
+onep
+ transport type tls localcert ONEP disable-remotecert-validation
+ no transport type tipc
+exit
+!
+
+# Mac / Linux
+
+1. Copy contents of exported pem file to text editor
+2. Save as [name].pem somewhere accessible by onePK application
