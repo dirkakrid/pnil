@@ -69,15 +69,15 @@ class standardRoutes(object):
 
     @classmethod
     def getADMetric(cls, search_list):
-        admetric = []
+        ad_and_metric = []
         for ad in search_list:
             ad_match = AD_METRIC_RE.search(ad)
             if ad_match:
-                admetric.append(ad_match.group(0))
+                ad_and_metric.append(ad_match.group(0))
             else:
-                admetric.append('0/0')
+                ad_and_metric.append('0/0')
 
-        return admetric
+        return ad_and_metric
 
     @classmethod
     def getNextHop(cls, search_list):
