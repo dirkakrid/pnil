@@ -26,6 +26,7 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
     from onep.routing.L3UnicastRouteRange import L3UnicastRouteRange
     from onep.interfaces.NetworkPrefix import NetworkPrefix
     from onep.routing.RouteRange import RouteRange
+    from onep.routing.L3UnicastNextHop import L3UnicastNextHop
 
     class onepk(object):
         def __init__(self):
@@ -145,9 +146,6 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
                           'tx_bandwidth': config.tx_bandwidth}
             return inter_dict
 
-        def d(self):
-            self._device.disconnect()
-
         def getRoutes(self):
 
             # currently need to fix this function
@@ -165,7 +163,7 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
 
             routes = {}
             all_routes = {}
-            c = 1
+            counter = 1
             for r in route_list:
                 routes['route'] = str(r.prefix.address) + \
                     '/' + str(r.prefix.prefix_length)
@@ -173,9 +171,9 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
                 routes['prefix_length'] = r.prefix.prefix_length
                 routes['admin_distance'] = r.admin_distance
                 routes['type'] = ''
-                routes['metric'] = ''
-                all_routes[c] = routes
-                # print json.dumps(routes,indent=5)
+                routes['metric'] = r.metric
+                all_routes[counter] = routes
+                counter += 1
 
             return all_routes
 

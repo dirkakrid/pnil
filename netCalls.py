@@ -14,9 +14,9 @@ from pnil.utils.findRoutes import standardRoutes
 # -------------------
 # GLOBAL VARIABLES FOR PRINTING AND RUNNING
 # -------------------
-ARISTA = False
+ARISTA = True
 CISCO_ONEP = False if ARISTA else True
-USE_ARGS = True
+USE_ARGS = False
 # -------------------
 
 def main():
@@ -28,14 +28,14 @@ def main():
         result = sw1.run()
 
         printResult(result)
-
+        
 
     if ARISTA and USE_ARGS == False:
         sw1 = netDevice()
         sw1.initialize('veos-01', 'arista', 'sw1')
         sw1.setLogin('arista', 'arista')
         # # function = 'getHostname, getVersion, getPlatform, getCPU, getDetails'
-        function = 'getDetails'
+        function = 'getRoutes'
         kargs = {'vrf': None, 'options': None}
         # result = sw1.run(function)
         result = sw1.run(function, kargs)
