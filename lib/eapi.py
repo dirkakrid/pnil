@@ -24,7 +24,7 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
     # ----------------------------------------------------------------
 
     from jsonrpclib import Server
-    from pnil.utils.findRoutes import standardRoutes
+    from pnil.lib.findRoutes import standardRoutes
     import re
 
     # ----------------------------------------------------------------
