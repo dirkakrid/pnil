@@ -50,3 +50,7 @@ Follow my [BLOG](http://ipyandy.net) for more on networking, coding and rants.
 Follow me on [Twitter @IPyandy](http://twitter.com/IPyandy) and stay in touch.
 
 To be updated soon
+
+### LICENSE
+
+BSD-3, See LICENSE file
