@@ -19,8 +19,8 @@ PROTOCOL_NX_RE = re.compile(r'(((?:\w+-\d{1,5}),\s\w+((?:\w+)(?:-\d{1})?)))|dire
 # -----------------
 
 # AD AND METRIC WORKS ON IOS/ARISTA AND NX-OS
-METRIC_RE = re.compile(r'(?<=\[)(?:[0-9]{1,3})', re.I)
-ADMIN_DISTANCE_RE = re.compile(r'(?<=/)(?:[0-9]{1,7})(?=])')
+METRIC_RE = re.compile(r'(?<=/)(?:\d{1,7})(?=])', re.I)
+ADMIN_DISTANCE_RE = re.compile(r'(?<=\[)(?:\d{1,7})(?=/)')
 # ---------------------------------------
 
 # NEXTHOP_IP WORKS ON IOS/ARISTA AND NX-OS
