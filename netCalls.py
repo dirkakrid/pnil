@@ -6,31 +6,28 @@
 
 from pnil.lib.netControl import netDevice
 from pnil.lib.netView import printResult
-from pnil.utils.tools import initArgs
-from pnil.utils.findRoutes import standardRoutes
 
 #----------------------------------------------------------------
 
 # -------------------
 # GLOBAL VARIABLES FOR PRINTING AND RUNNING
 # -------------------
-ARISTA = True
-CISCO_ONEP = False if ARISTA else True
-USE_ARGS = False
+MANUFACTURER = 'ARISTA'
+USE_ARGS = True
 # -------------------
 
 def main():
     '''
     Ran only if program called as script
     '''
-    if ARISTA and USE_ARGS == True:
+    if USE_ARGS == True:
         sw1 = netDevice(USE_ARGS)
         result = sw1.run()
 
-        printResult(result)
-        
+        printResult(result, sw1.getManufacturer())
 
-    if ARISTA and USE_ARGS == False:
+
+    elif MANUFACTURER == 'ARISTA':
         sw1 = netDevice()
         sw1.initialize('veos-01', 'arista', 'sw1')
         sw1.setLogin('arista', 'arista')
@@ -42,14 +39,8 @@ def main():
 
         printResult(result)
 
-    if CISCO_ONEP and USE_ARGS == True:
-        cisco1 = netDevice(USE_ARGS)
-        result = cisco1.run()
 
-        printResult(result)
-
-
-    if CISCO_ONEP and USE_ARGS == False:
+    elif MANUFACTURER == 'CISCO':
         cisco1 = netDevice()
         cisco1.initialize('csr1kv-01', 'cisco', 'cisco1')
         cisco1.setLogin('cisco', 'cisco')
