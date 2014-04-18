@@ -28,25 +28,83 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
     import re
 
     # ----------------------------------------------------------------
-    # GLOBAL VARIABLES
-    # ----------------------------------------------------------------
+    # ARISTA EAPI CLASS
+    # ----------------------------------------------------------------                        
 
+    class eapi(object):
+        """docstring for arista"""
 
-    # ----------------------------------------------------------------
+        # ----------------------------------------------------------------
+        # PRIVATE MEMBERS
+        # ----------------------------------------------------------------
 
-    # ----------------------------------------------------------------
-    # Configuration section
-    # ----------------------------------------------------------------
-
-    # ----------------------------------------------------------------
-
-    class eapiInfo(object):
-        """docstring for eapiInfo"""
         def __init__(self):
-            super(eapiInfo, self).__init__()
+            super(eapi, self).__init__()
+            self._host = None
+            self._username = None
+            self._password = None
+            self._switch = None
+            self._name = None
+            self._version_info = None
+            self._connected = False
+
+        def __str__(self):
+            return str(self.getDetails())
+
+        def __connectToSwitch(self):
+            try:
+                return Server('https://{0}:{1}@{2}/command-api\
+                    '.format(self._username, self._password, self._host))
+            except Exception as e:
+                print ('There was an error trying to connect: {}'.format(e))
+
+        # run CMD
+        def _runCMD(self, cli):
+            if self._connected:
+                return self._switch.runCmds(1, cli)
+            else:
+                self.connect()
+                return self._switch.runCmds(1, cli)
+
+        # run non JSON CMD
+        def _runCMDText(self, cli):
+            if self._connected:
+                return self._switch.runCmds(1, cli, 'text')
+            else:
+                self.connect()
+                return self._switch.runCmds(1, cli, 'text')
+
+        @classmethod
+        def createDataDict(cls, key, value):
+            return {key: value}
+
+        # ----------------------------------------------------------------
+        # INITIALIZE AND SETUP EAPI
+        # ----------------------------------------------------------------
+
+        # creates connection to switch
+        def connect(self):
+            try:
+                self._switch = self.__connectToSwitch()
+                self._connected = True
+                return self._switch
+            except Exception as e:
+                print ('Could not connect, error: {0}'.format(e))
+
+        def setLogin(self, username, password):
+            self._username = username
+            self._password = password
+
+        def initialize(self, host, name):
+            self._host = host
+            self._name = name
+
+        # ----------------------------------------------------------------
+        # FIND BASIC INFORMATION, INTERFACES, HOSTNAME, MAC...
+        # ----------------------------------------------------------------
 
         def getHost(self):
-            return eapi.createDataDict('host', self._host)
+            return self.createDataDict('host', self._host)
 
         def _versionList(self):
             '''
@@ -69,14 +127,14 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
             ''' returns a 'show version' output as a dictionary '''
 
             # normaly returns list with dictionary.
-            version_info = eapi._runCMD(self, ['show version'])
+            version_info = self._runCMD(['show version'])
             self._version_info = version_info[0]
 
             #returns only dict of relevant information
             return self._version_info
 
         def getName(self):
-            return eapi.createDataDict('name', self._name)
+            return self.createDataDict('name', self._name)
 
         def getVersion(self):
             ''' Returns the device running code version as a string '''
@@ -85,19 +143,24 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
             if not self._version_info:
                 self.getVersionInfo()
 
-            return eapi.createDataDict('version', self._version_info['version'])
+            return self.createDataDict('version', self._version_info['version'])
 
         # function returns a dictionary of the interfaces and their status
         def getInterfacesStatus(self):
-            response = eapi._runCMD(self, ['show interfaces status'])[0]['interfaceStatuses']
+            response = self._runCMD(['show interfaces status'])[0]['interfaceStatuses']
 
             return response
+
+        def getInterfaces(self):
+            interfaces = self.getInterfacesStatus().keys()
+
+            return self.createDataDict('interfaces', interfaces)
 
         def getPlatform(self):
             if not self._version_info:
                 self.getVersionInfo()
 
-            return eapi.createDataDict('platform', self._version_info['modelName'])
+            return self.createDataDict('platform', self._version_info['modelName'])
 
         def getSerialNumber(self):
 
@@ -106,7 +169,7 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
 
             serial = self._version_info['serialNumber']
 
-            serial_number = eapi.createDataDict('serial_number', serial)
+            serial_number = self.createDataDict('serial_number', serial)
 
             if serial_number['serial_number'] == '':
                 non_serial = {'serial_number': 'not_found'}
@@ -115,18 +178,18 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
                 return serial_number
 
         def getUptime(self):
-            output = eapi._runCMDText(self, ['show uptime'])[0]['output']
+            output = self._runCMDText(['show uptime'])[0]['output']
             # gets uptime if output is in H:M or (|) in "number Mins|Days"
             up_split = re.split(r"up\s+?", output)
 
             uptime = re.match(r'(^(\d{1,3}:\d{1,3})|^(\d{1,3})\s\w+)', up_split[1]).group(0)
-            return eapi.createDataDict('uptime', uptime)
+            return self.createDataDict('uptime', uptime)
 
         def getCPU(self):
-            output = eapi._runCMDText(self, ['show processes top once'])[0]['output']
+            output = self._runCMDText(['show processes top once'])[0]['output']
             
             cpu = re.search(r"\d+\.\d*%(?=us)", output).group(0)
-            return eapi.createDataDict('cpu_usage', cpu)
+            return self.createDataDict('cpu_usage', cpu)
 
         def getHostname(self):
             ''' Returns the device's none FQDN hostname '''
@@ -134,13 +197,13 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
             version_int = self._versionList()
 
             if int(version_int[0]) >= 4 and int(version_int[1]) >= 13:
-                output = eapi._runCMD(self, ['show hostname'])[0]['hostname']
-                return eapi.createDataDict('hostname', output)
+                output = self._runCMD(['show hostname'])[0]['hostname']
+                return self.createDataDict('hostname', output)
             else:
-                output = eapi._runCMDText(self, ['show lldp local-info'])[0]['output']
+                output = self._runCMDText(['show lldp local-info'])[0]['output']
 
                 host = re.search(r"(?<=System Name: \").*?(?=\.)", output).group(0)
-                return eapi.createDataDict('hostname', host)
+                return self.createDataDict('hostname', host)
 
         def getFQDN(self):
             '''
@@ -152,16 +215,16 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
             version_int = self._versionList()
 
             if int(version_int[0]) >= 4 and int(version_int[1]) >= 13:
-                output = eapi._runCMD(self, ["show hostname"])[0]['fqdn']
-                return eapi.createDataDict('fqdn', output)
+                output = self._runCMD(["show hostname"])[0]['fqdn']
+                return self.createDataDict('fqdn', output)
             else:
-                output = eapi._runCMDText(eapi, ['show lldp local-info'])[0]['output']
+                output = self._runCMDText(['show lldp local-info'])[0]['output']
 
                 fqdn = re.search(r"(?<=System Name: \").*?(?=\")", output).group(0)
-                return eapi.createDataDict('fqdn', fqdn)
+                return self.createDataDict('fqdn', fqdn)
 
         def getAAA(self):
-            aaa = eapi._runCMD(self, ['enable', 'show aaa'])[1]['users']
+            aaa = self._runCMD(['enable', 'show aaa'])[1]['users']
             return aaa
 
         def getFreeMem(self):
@@ -170,7 +233,7 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
             if not self._version_info:
                 self.getVersionInfo()
 
-            return eapi.createDataDict('free_memory', self._version_info['memFree'])
+            return self.createDataDict('free_memory', self._version_info['memFree'])
 
         def getTotalMem(self):
 
@@ -178,13 +241,13 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
             if not self._version_info:
                 self.getVersionInfo()
 
-            return eapi.createDataDict('total_memory', self._version_info['memTotal'])
+            return self.createDataDict('total_memory', self._version_info['memTotal'])
 
         def getSystemMac(self):
             if not self._version_info:
                 self.getVersionInfo()
 
-            return eapi.createDataDict('system_mac', self._version_info['systemMacAddress'])
+            return self.createDataDict('system_mac', self._version_info['systemMacAddress'])
 
 
         def getDetails(self):
@@ -219,103 +282,30 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
 
             return details
 
-    # ----------------------------------------------------------------
-
-                        
-    class eapiRouting(object):
-        """docstring for eapiRouting"""
-        def __init__(self):
-            super(eapiRouting, self).__init__()
-
         # ----------------------------------------------------------------
-        # get ROUTING INFORMATION
+        # FIND ROUTING INFORMATION
         # ----------------------------------------------------------------
 
         def getRoutes(self, options=None):
             if options:
-                routes = eapi._runCMDText(self, ['show ip route {0}\
+                routes = self._runCMDText(['show ip route {0}\
                     '.format(options)])[0]['output']
             else:
-                routes = eapi._runCMDText(self, ['show ip route'])[0]['output']
+                routes = self._runCMDText(['show ip route'])[0]['output']
             
             return standardRoutes.getRoutes(routes)
 
         def getARP(self, options=None):
             if options:
-                return eapi._runCMD(self, ['show arp {0}\
+                return self._runCMD(['show arp {0}\
                     '.format(options)])[0]
             else:
-                return eapi._runCMD(self, ['show arp'])[0]
+                return self._runCMD(['show arp'])[0]
+
 
         # ----------------------------------------------------------------
-                        
-
-    class eapi(eapiRouting, eapiInfo):
-        """docstring for arista"""
-        def __init__(self):
-            super(eapi, self).__init__()
-            self._host = None
-            self._username = None
-            self._password = None
-            self._switch = None
-            self._name = None
-            self._version_info = None
-            self._connected = False
-
-        def __str__(self):
-            return str(self.getDetails())
-
+        # FIND SWITCHING INFORMATION
         # ----------------------------------------------------------------
-        # "Private / Protected" Methods
-        # ----------------------------------------------------------------
-
-        def __connectToSwitch(self):
-            try:
-                return Server('https://{0}:{1}@{2}/command-api\
-                    '.format(self._username, self._password, self._host))
-            except Exception as e:
-                print ('There was an error trying to connect: {}'.format(e))
-
-        # run CMD
-        def _runCMD(self, cli):
-            if self._connected:
-                return self._switch.runCmds(1, cli)
-            else:
-                self.connect()
-                return self._switch.runCmds(1, cli)
-
-        # run non JSON CMD
-        def _runCMDText(self, cli):
-            if self._connected:
-                return self._switch.runCmds(1, cli, 'text')
-            else:
-                self.connect()
-                return self._switch.runCmds(1, cli, 'text')
-
-        @classmethod
-        def createDataDict(cls, key, value):
-            return {key: value}
-
-        # ----------------------------------------------------------------
-        # Public / Unprotected Methods
-        # ----------------------------------------------------------------
-
-        # creates connection to switch
-        def connect(self):
-            try:
-                self._switch = self.__connectToSwitch()
-                self._connected = True
-                return self._switch
-            except Exception as e:
-                print ('Could not connect, error: {0}'.format(e))
-
-        def setLogin(self, username, password):
-            self._username = username
-            self._password = password
-
-        def initialize(self, host, name):
-            self._host = host
-            self._name = name
 
 else:
     print('Python {0} is not supported at this time.'.format(sys.version_info[0:3]))
