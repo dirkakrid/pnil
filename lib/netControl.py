@@ -244,3 +244,7 @@ class netDevice(object):
             result = getattr(self._net_device, self._method[0])()
 
         return result
+
+
+    def getManufacturer(self):
+        return self._manufacturer
