@@ -148,8 +148,6 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
 
         def getRoutes(self):
 
-            # currently need to fix this function
-
             routing = Routing.get_instance(self._device)
             #rib = routing.rib
             scope = L3UnicastScope()
@@ -163,17 +161,18 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
 
             routes = {}
             all_routes = {}
-            counter = 1
+            # counter = 1
             for r in route_list:
                 routes['route'] = str(r.prefix.address) + \
                     '/' + str(r.prefix.prefix_length)
-                routes['prefix'] = r.prefix.address
+                # routes['prefix'] = r.prefix.address
+                prefix = r.prefix.address
                 routes['prefix_length'] = r.prefix.prefix_length
                 routes['admin_distance'] = r.admin_distance
                 routes['type'] = ''
                 routes['metric'] = r.metric
-                all_routes[counter] = routes
-                counter += 1
+                all_routes[prefix] = routes
+                # counter += 1
 
             return all_routes
 
