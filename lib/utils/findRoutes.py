@@ -39,7 +39,7 @@ class standardRoutes(object):
         super(standardRoutes, self).__init__()
 
     @classmethod
-    def getRoutesProtocol(cls, search_list):
+    def getProtocols(cls, search_list):
         protocols = []
         for p in search_list:
             p_match = PROTOCOL_RE.search(p)
@@ -54,19 +54,33 @@ class standardRoutes(object):
         return protocols
 
     @classmethod
+    def getSingleProtocol(cls, line):
+        p_match = PROTOCOL_RE.search(line)
+        protocol = p_match.group(0) if p_match else None
+
+        return protocol
+
+    @classmethod
     def getRoutePrefixes(cls, search_list):
         prefixes = []
         for p in search_list:
             # The test for protocol first in the prefix line is necessary
             # the regEX matching the prefix, sometimes matches an un-necessary line
             # such as 10.0.0.0/8 is variably subneted, under this line, are the actual prefixes
-            protocol = cls.getRoutesProtocol([p])
-            if protocol:
-                pr_match = PREFIX_RE.search(p)
-                if pr_match:
-                    prefixes.append(pr_match.group(0))
+            protocol = cls.getSingleProtocol(p)
+            prefix = PREFIX_RE.search(p)
+            if protocol and prefix:
+                prefixes.append(prefix.group(0))
 
         return prefixes
+
+    @classmethod
+    def getSinglePrefix(cls, line):
+        pr_match = PREFIX_RE.search(line)
+        prefix = pr_match.group(0) if pr_match else None
+
+        return prefix
+
 
     @classmethod
     def getAdminDistance(cls, search_list):
@@ -154,25 +168,22 @@ class standardRoutes(object):
     @classmethod
     def getRoutes(cls, routes):
         routes_list = cls.createRoutesList(routes)
-
-        p_keys = cls.getRoutesProtocol(routes_list)
-        routes_dict = {key: {} for key in p_keys}
+        routes_dict = {}
 
         for line in routes_list:
-            p_key = cls.getRoutesProtocol([line])
-            prefix = cls.getRoutePrefixes([line])
+            protocol = cls.getSingleProtocol(line)
+            prefix = cls.getSinglePrefix(line)
 
-            # if p_match and pr_match:
-            if p_key and prefix:
+            if prefix:
                 admin_distance = cls.getAdminDistance([line])
                 metric = cls.getMetric([line])
                 next_hop = cls.getNextHop([line])
                 next_hop_int = cls.getNextHopInterface([line])
-                routes_dict[p_key[0]][prefix[0]] = {'admin_distance': admin_distance,
-                                                        'metric': metric,
-                                                        'next_hop': next_hop,
-                                                        'next_hop_int': next_hop_int
-                                            }
+                routes_dict[prefix] = {'admin_distance': admin_distance,
+                                                    'protocol': protocol,
+                                                    'metric': metric,
+                                                    'next_hop': next_hop,
+                                                    'next_hop_int': next_hop_int}
 
         return routes_dict
 
