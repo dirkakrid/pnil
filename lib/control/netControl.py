@@ -2,8 +2,8 @@
 
 
 from __future__ import print_function
-from pnil.lib.eapi import eapi
-from pnil.lib.onepk import onepk
+from pnil.lib.arista.eapi import eapi
+from pnil.lib.cisco.onepk import onepk
 from pnil.utils.tools import initArgs
 from itertools import izip_longest
 import sys, string, random
