@@ -204,15 +204,7 @@ class netDevice(object):
 
         return new_opts
 
-    def run(self, method=None, method_options=None):
-        '''
-        Checks implemented_methods constant and tests if library has called method.
-        otherwise terminates with mothod not implemented.
-        '''
-        # initializes the device with proper information passed
-        if not self._initialized:
-            raise Exception("initialize device first, see help(netDevice) for more info")
-
+    def runEAPI(self, method=None, method_options=None):
         implemented_methods = dir(self._net_device)
 
         if method_options:
@@ -245,6 +237,44 @@ class netDevice(object):
 
         return result
 
+    def runONEPK(self, method=None):
+        implemented_methods = dir(self._net_device)
+
+        result = [] if len(self._method) > 1 else {}
+
+        counter = 1
+        if len(self._method) > 1:
+            for call in self._method:
+                if call not in implemented_methods:
+                    result.append({counter: {'method_not_found': [call]}})
+                    counter += 1
+                else:
+                    result.append({counter: getattr(self._net_device, call)()})
+                    counter += 1
+        else:
+            result = getattr(self._net_device, self._method[0])()
+
+        return result
+
+
+    def run(self, method=None, method_options=None):
+        '''
+        Checks implemented_methods constant and tests if library has called method.
+        otherwise terminates with mothod not implemented.
+        '''
+        # initializes the device with proper information passed
+        if not self._initialized:
+            raise Exception("initialize device first, see help(netDevice) for more info")
+
+        if self._manufacturer.lower() == 'arista' or \
+            self._manufacturer.lower() == 'eapi':
+
+            return self.runEAPI(method, method_options)
+
+        if self._manufacturer.lower() == 'cisco' or \
+            self._manufacturer.lower() == 'onepk':
+
+            return self.runONEPK(method)
 
     def getManufacturer(self):
         return self._manufacturer
