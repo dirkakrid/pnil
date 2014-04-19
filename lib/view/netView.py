@@ -3,7 +3,7 @@
 import pprint
 
 def printResult(result, manufacturer='Arista'):
-    pp = pprint.PrettyPrinter(indent=2, width=60)
+    pp = pprint.PrettyPrinter(indent=2, width=30)
     if type(result) is not str and type(result) is not unicode:
         print ('# ' + '-' * 80)
         print ('# {0} DATASTRUCTURE REPRESENTATION'.format(manufacturer.upper()))
