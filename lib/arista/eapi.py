@@ -303,6 +303,44 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
             else:
                 return self._runCMD(['show arp'])[0]
 
+        def getOSPFNeighbors(self, options=None):
+            if options:
+                neighbors = self._runCMDText(['show ip ospf neighbor {0}\
+                    '.format(options)])[0]['output']
+            else:
+                neighbors = self._runCMDText(['show ip ospf neighbor'])[0]['output']
+
+            # splits the lines, but starting with the first relevant line
+            # allows for slicing always at the right place below
+            output_list = neighbors[neighbors.find('Neighbor'):].splitlines()
+
+            # creates a list containg lists of all the neighbor parameters
+            # there could be multiple neghbors, so it's split into a list of lists
+            neighbor_list = []
+            for line in output_list[1:]:
+                neighbor_list.append(re.split(r'(?:\s{2,20})', line))
+
+            return self.findOSPFNeighbors(neighbor_list)
+
+        @classmethod
+        def findOSPFNeighbors(cls, neighbor_list):
+            neighbor_dict = {}
+
+            # iterates through the top list
+            # n[0] is always the neighbor_id, 
+                #that's used as the key for the dict
+            # the assigs the relevant data from the remaining items
+            for n in neighbor_list:
+                neighbor_dict[n[0]] = {'vrf': n[1],
+                                                            'priority': n[2],
+                                                            'state': n[3],
+                                                            'dead_time': n[4],
+                                                            'address': n[5],
+                                                            'interface': n[6]
+                }
+
+            return neighbor_dict
+
 
         # ----------------------------------------------------------------
         # FIND SWITCHING INFORMATION
