@@ -66,7 +66,7 @@ class netDevice(object):
 
                 self._net_device = eapi()
                 self._created = True
-            elif manufacturer.lower() in {'cisco', 'onepk'}:
+            elif manufacturer.lower() in {'cisco', 'onepk', 'onep', 'one'}:
 
                 self._net_device = onepk()
                 self._created = True
@@ -264,13 +264,11 @@ class netDevice(object):
         if not self._initialized:
             raise Exception("initialize device first, see help(netDevice) for more info")
 
-        if self._manufacturer.lower() == 'arista' or \
-            self._manufacturer.lower() == 'eapi':
+        if self._manufacturer.lower() in {'arista', 'eapi'}:
 
             return self.runEAPI(method, method_options)
 
-        if self._manufacturer.lower() == 'cisco' or \
-            self._manufacturer.lower() == 'onepk':
+        if self._manufacturer.lower() == {'cisco', 'onepk', 'onep', 'one'}:
 
             return self.runONEPK(method)
 
