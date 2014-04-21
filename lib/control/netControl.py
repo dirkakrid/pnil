@@ -62,11 +62,11 @@ class netDevice(object):
     def _createNetDevice(self, manufacturer):
 
         if manufacturer:
-            if manufacturer.lower() in ['arista', 'eapi']:
+            if manufacturer.lower() in {'arista', 'eapi'}:
 
                 self._net_device = eapi()
                 self._created = True
-            elif manufacturer.lower() in ['cisco', 'onepk']:
+            elif manufacturer.lower() in {'cisco', 'onepk'}:
 
                 self._net_device = onepk()
                 self._created = True
