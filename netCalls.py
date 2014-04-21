@@ -21,10 +21,10 @@ def main():
     Ran only if program called as script
     '''
     if USE_ARGS == True:
-        sw1 = netDevice(USE_ARGS)
-        result = sw1.run()
+        dev1 = netDevice(USE_ARGS)
+        result = dev1.run()
 
-        printResult(result, sw1.getManufacturer())
+        printResult(result, dev1.getManufacturer())
 
 
     elif MANUFACTURER == 'ARISTA':
