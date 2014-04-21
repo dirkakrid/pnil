@@ -63,13 +63,13 @@ class netDevice(object):
 
         if manufacturer:
             if manufacturer.lower() in {'arista', 'eapi'}:
-
                 self._net_device = eapi()
                 self._created = True
-            elif manufacturer.lower() in {'cisco', 'onepk', 'onep', 'one'}:
 
+            elif manufacturer.lower() in {'cisco', 'onepk', 'onep', 'one'}:
                 self._net_device = onepk()
                 self._created = True
+
             else:
                 pass
         else:
@@ -154,6 +154,7 @@ class netDevice(object):
         elif not self._created and manufacturer:
             self.create(manufacturer)
             self._net_device.initialize(host, self._name)
+            self._manufacturer = manufacturer
         else:
             raise Exception('Must create device first, call create(manufacturer)')
 
@@ -192,7 +193,7 @@ class netDevice(object):
         return new_calls
 
     @classmethod
-    def _findCMDOptions(cls, func_options):
+    def _findMethodOptions(cls, func_options):
         if func_options['vrf'] and func_options['options']:
             new_opts = ' '.join(['vrf', func_options['vrf'], func_options['options']])
         elif func_options['vrf']:
@@ -208,10 +209,8 @@ class netDevice(object):
         if method_options:
             self._method_options = method_options
 
-        if not self._method and type(method) is not dict:
-            self._method = self._findMethod(method)
-        elif not self._method and type(method) is dict:
-            self._method = self._findMethod(method['method'])
+        if not self._method:
+            self._method = self.getMethoNotSet(method)
 
         result = [] if len(self._method) > 1 else {}
 
@@ -228,7 +227,7 @@ class netDevice(object):
         elif self._method[0] not in implemented_methods:
             result.update({'method_not_found': self._method[0]})
         elif self._method_options['vrf'] or self._method_options['options']:
-            new_opts = self._findCMDOptions(self._method_options)
+            new_opts = self._findMethodOptions(self._method_options)
             result = getattr(self._net_device, self._method[0])(new_opts)
         else:
             result = getattr(self._net_device, self._method[0])()
@@ -237,6 +236,9 @@ class netDevice(object):
 
     def runONEPK(self, method=None):
         implemented_methods = dir(self._net_device)
+
+        if not self._method:
+            self._method = self.getMethoNotSet(method)
 
         result = [] if len(self._method) > 1 else {}
 
@@ -254,6 +256,13 @@ class netDevice(object):
 
         return result
 
+    def getMethoNotSet(self, method=None):
+        if type(method) is not dict:
+            new_method = self._findMethod(method)
+        elif type(method) is dict:
+            new_method = self._findMethod(method['method'])
+
+        return new_method
 
     def run(self, method=None, method_options=None):
         '''
@@ -268,7 +277,7 @@ class netDevice(object):
 
             return self.runEAPI(method, method_options)
 
-        if self._manufacturer.lower() == {'cisco', 'onepk', 'onep', 'one'}:
+        if self._manufacturer.lower() in {'cisco', 'onepk', 'onep', 'one'}:
 
             return self.runONEPK(method)
 
