@@ -325,22 +325,23 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
         @classmethod
         def findOSPFNeighbors(cls, neighbor_list):
             # initiates the key count based on the size of the neighbor list
-            neighbor_dict = {key: {} for key in range(1, len(neighbor_list)+1)}
+            # neighbor_dict = {key: {} for key in range(1, len(neighbor_list)+1)}
+            neighbor_dict = {}
 
             # iterates through the top list
             # n[0] is always the neighbor_id, 
                 #that's used as the key for the dict
             # the assigs the relevant data from the remaining items
-            count = 1
+            # count = 1
             for n in neighbor_list:
-                neighbor_dict[count][n[0]] = {'vrf': n[1],
+                neighbor_dict[n[0]] = {'vrf': n[1],
                                                             'priority': n[2],
                                                             'state': n[3],
                                                             'dead_time': n[4],
                                                             'address': n[5],
                                                             'interface': n[6]
                 }
-                count += 1
+                # count += 1
 
             return neighbor_dict
 
