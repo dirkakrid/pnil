@@ -86,26 +86,26 @@ class netDevice(object):
 
     def parseArguments(self, args):
         # sets dev_name if -n is used
-        if args['name']:
-            self._name = args['name']
+        if args.name:
+            self._name = args.name
         # if -n is not used, then a random generated ID will be assigned
         else:
             # print('Device name not entered, picking random name')
             self._id_generator()
 
         # set the host from the list of args
-        if args['ip_address']:
-            self._host = args['ip_address'] 
-        elif args['hostname']:
-            self._host = args['hostname']
+        if args.ip_address:
+            self._host = args.ip_address 
+        elif args.hostname:
+            self._host = args.hostname
         else:
             print('Must specify the device to connected, please enter\
                 hostname or IP address.')
             sys.exit(1)
 
         # set the manufacturer to make calls on
-        if args['manufacturer']:
-            self._manufacturer = args['manufacturer'] 
+        if args.manufacturer:
+            self._manufacturer = args.manufacturer 
             self._createNetDevice(self._manufacturer)
         else:
             print('Remember to enter the manufacturer by passing the -m flag.')
@@ -115,8 +115,8 @@ class netDevice(object):
         # initializes the device on information passed
         self.initialize(self._host)
 
-        username = args['username'] if args['username'] else None
-        password = args['password'] if args['password'] else None
+        username = args.username if args.username else None
+        password = args.password if args.password else None
 
         if username and password:
             self._net_device.setLogin(username, password)
@@ -129,12 +129,12 @@ class netDevice(object):
             self._net_device.setLogin(username, password)
 
         # sets the method(s) to be called if passed into the arguments
-        if args['function'] and args['vrf'] or args['options']:
-            self._method = self._findMethod(args['function'])
-            self._method_options['vrf'] = args['vrf'] if args['vrf'] else None
-            self._method_options['options'] = args['options'] if args['options'] else None
-        elif args['function']:
-            self._method = self._findMethod(args['function'])
+        if args.function and args.vrf or args.options:
+            self._method = self._findMethod(args.function)
+            self._method_options['vrf'] = args.vrf if args.vrf else None
+            self._method_options['options'] = args.options if args.options else None
+        elif args.function:
+            self._method = self._findMethod(args.function)
 
         return self._net_device
 
