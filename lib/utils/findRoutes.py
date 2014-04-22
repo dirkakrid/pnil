@@ -143,8 +143,7 @@ class standardRoutes(object):
         routes_list = routes_list[6:]
 
         prev_line = None
-        position = 0
-        for line in routes_list:
+        for position, line in enumerate(routes_list):
             # words = line.split(' ')
             words = shlex.split(line)
             len_words = len(words)
@@ -153,14 +152,12 @@ class standardRoutes(object):
                     routes_list[position - 1] = ' '.join([prev_line, line])
                     routes_list[position] = ''
 
-                position += 1
                 prev_line = line
                 len_words = 0
                 words = None
             else:
                 prev_line = line
                 len_words = 0
-                position += 1
                 words = None
 
         return routes_list
