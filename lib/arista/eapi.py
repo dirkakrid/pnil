@@ -107,7 +107,7 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
         def getHost(self):
             return self.createDataDict('host', self._host)
 
-        def _versionList(self):
+        def _getVersionList(self):
             '''
                 gets version and converts to a list of Ivalues
                 this allows comparisons between software versions
@@ -195,9 +195,9 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
         def getHostname(self):
             ''' Returns the device's none FQDN hostname '''
 
-            version_int = self._versionList()
+            version_int = self._getVersionList()
 
-            if int(version_int[0]) >= 4 and int(version_int[1]) >= 13:
+            if int(version_int[0]) >= 4 >= 13:
                 output = self._runCMD(['show hostname'])[0]['hostname']
                 return self.createDataDict('hostname', output)
             else:
@@ -213,9 +213,9 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
                 their's support accross platforms
             '''
 
-            version_int = self._versionList()
+            version_int = self._getVersionList()
 
-            if int(version_int[0]) >= 4 and int(version_int[1]) >= 13:
+            if int(version_int[0]) >= 4 >= 13:
                 output = self._runCMD(["show hostname"])[0]['fqdn']
                 return self.createDataDict('fqdn', output)
             else:
