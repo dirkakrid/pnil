@@ -151,9 +151,9 @@ class standardRoutes(object):
                 if prev_line:
                     routes_list[position - 1] = ' '.join([prev_line, line])
                     routes_list[position] = ''
-
-                prev_line = line
-                words = None
+                else:
+                    prev_line = line
+                    words = None
             else:
                 prev_line = line
                 words = None
