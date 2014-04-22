@@ -20,7 +20,7 @@ def main():
     '''
     Ran only if program called as script
     '''
-    if USE_ARGS == True:
+    if USE_ARGS:
         dev1 = netDevice(USE_ARGS)
         result = dev1.run()
 
