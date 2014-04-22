@@ -206,7 +206,7 @@ class netDevice(object):
     def runEAPI(self, method=None, method_options=None):
         implemented_methods = dir(self._net_device)
 
-        if method_options:
+        if method_options is not None:
             self._method_options = method_options
 
         if not self._method:
