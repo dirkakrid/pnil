@@ -2,7 +2,7 @@
 
 
 from __future__ import print_function
-from pnil.lib.arista.eapi import eapi
+from pnil.lib.arista.eapi import AristaEapi
 from pnil.lib.cisco.onepk import onepk
 from pnil.utils.tools import initArgs
 from itertools import izip_longest
@@ -62,11 +62,11 @@ class netDevice(object):
     def _createNetDevice(self, manufacturer):
 
         if manufacturer:
-            if manufacturer.lower() in {'arista', 'eapi'}:
-                self._net_device = eapi()
+            if manufacturer.lower() in {'arista', 'eapi', 'arista-eapi', 'aristaeapi'}:
+                self._net_device = AristaEapi()
                 self._created = True
 
-            elif manufacturer.lower() in {'cisco', 'onepk', 'onep', 'one'}:
+            elif manufacturer.lower() in {'cisco', 'onepk', 'onep', 'one', 'cisco-onepk'}:
                 self._net_device = onepk()
                 self._created = True
 

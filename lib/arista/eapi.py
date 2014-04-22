@@ -32,7 +32,7 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
     # ARISTA EAPI CLASS
     # ----------------------------------------------------------------                        
 
-    class eapi(object):
+    class AristaEapi(object):
         """docstring for arista"""
 
         # ----------------------------------------------------------------
@@ -40,7 +40,7 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
         # ----------------------------------------------------------------
 
         def __init__(self):
-            super(eapi, self).__init__()
+            super(AristaEapi, self).__init__()
             self._host = None
             self._username = None
             self._password = None
