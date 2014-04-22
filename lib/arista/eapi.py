@@ -10,7 +10,7 @@
 # ----------------------------------------------------------------
 
 '''
- Library to make Arista Networks eAPI calls, furthur documenttion later
+ Library to make Arista Networks eAPI calls, furthur documenttion to come
  '''
 
 # ----------------------------------------------------------------

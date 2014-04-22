@@ -4,7 +4,7 @@
 
 #----------------------------------------------------------------
 
-from pnil.lib.control.netControl import netDevice
+from pnil.lib.control.netControl import NetDevice
 from pnil.lib.view.netView import printResult
 
 #----------------------------------------------------------------
@@ -21,14 +21,14 @@ def main():
     Ran only if program called as script
     '''
     if USE_ARGS:
-        dev1 = netDevice(USE_ARGS)
+        dev1 = NetDevice(USE_ARGS)
         result = dev1.run()
 
         printResult(result, dev1.getManufacturer())
 
 
     elif MANUFACTURER == 'ARISTA':
-        sw1 = netDevice()
+        sw1 = NetDevice()
         sw1.initialize('veos-01', 'arista', 'sw1')
         sw1.setLogin('arista', 'arista')
         # # function = 'getHostname, getVersion, getPlatform, getCPU, getDetails'
@@ -41,7 +41,7 @@ def main():
 
 
     elif MANUFACTURER == 'CISCO':
-        cisco1 = netDevice()
+        cisco1 = NetDevice()
         cisco1.initialize('csr1kv-01', 'cisco', 'cisco1')
         cisco1.setLogin('cisco', 'cisco')
         function = 'getDetails'

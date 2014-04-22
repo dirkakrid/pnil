@@ -9,13 +9,13 @@ from itertools import izip_longest
 import sys, string, random
 import re
 
-class netDevice(object):
+class NetDevice(object):
     """
         Parent class switch, which other classes will inherit from,
         ie. arista, cisco, juniper and so on
     """
     def __init__(self, USE_ARGS=None):
-        super(netDevice, self).__init__()
+        super(NetDevice, self).__init__()
         self._net_device = None
         self._created = False
         self._name = None
