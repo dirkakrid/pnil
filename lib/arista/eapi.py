@@ -56,8 +56,9 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
             try:
                 return Server('https://{0}:{1}@{2}/command-api\
                     '.format(self._username, self._password, self._host))
-            except Exception as e:
-                print ('There was an error trying to connect: {}'.format(e))
+            except:
+                print ('There was an error trying to connect')
+                raise
 
         # run CMD
         def _runCMD(self, cli):
@@ -89,8 +90,9 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
                 self._switch = self.__connectToSwitch()
                 self._connected = True
                 return self._switch
-            except Exception as e:
-                print ('Could not connect, error: {0}'.format(e))
+            except:
+                print ('Could not connect, error: {0}')
+                raise
 
         def setLogin(self, username, password):
             self._username = username
