@@ -5,7 +5,7 @@
 #----------------------------------------------------------------
 
 from pnil.lib.control.netControl import NetDevice
-from pnil.lib.view.netView import printResult
+from pnil.lib.view.NetworkView import PrintResult
 
 #----------------------------------------------------------------
 
@@ -24,7 +24,7 @@ def main():
         dev1 = NetDevice(USE_ARGS)
         result = dev1.run()
 
-        printResult(result, dev1.getManufacturer())
+        PrintResult(result, dev1.getManufacturer())
 
 
     elif MANUFACTURER == 'ARISTA':
@@ -37,7 +37,7 @@ def main():
         # result = sw1.run(function)
         result = sw1.run(function, kargs)
 
-        printResult(result)
+        PrintResult(result)
 
 
     elif MANUFACTURER == 'CISCO':
@@ -49,7 +49,7 @@ def main():
         result = cisco1.run(function)
         # result = cisco1.run(function, kargs)
 
-        printResult(result)
+        PrintResult(result)
 
 
 if __name__ == '__main__':
