@@ -146,18 +146,16 @@ class standardRoutes(object):
         for position, line in enumerate(routes_list):
             # words = line.split(' ')
             words = shlex.split(line)
-            len_words = len(words)
-            if len_words < 6:
+            
+            if len(words) < 6:
                 if prev_line:
                     routes_list[position - 1] = ' '.join([prev_line, line])
                     routes_list[position] = ''
 
                 prev_line = line
-                len_words = 0
                 words = None
             else:
                 prev_line = line
-                len_words = 0
                 words = None
 
         return routes_list
