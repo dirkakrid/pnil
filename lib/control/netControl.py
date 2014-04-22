@@ -212,17 +212,14 @@ class netDevice(object):
         if not self._method:
             self._method = self.getMethoNotSet(method)
 
-        result = [] if len(self._method) > 1 else {}
+        result = {}
 
-        counter = 1
         if len(self._method) > 1:
-            for call in self._method:
+            for counter, call in enumerate(self._method):
                 if call not in implemented_methods:
-                    result.append({counter: {'method_not_found': [call]}})
-                    counter += 1
+                    result[counter] = {'method_not_found': [call]}
                 else:
-                    result.append({counter: getattr(self._net_device, call)()})
-                    counter += 1
+                    result[counter] = getattr(self._net_device, call)()
 
         elif self._method[0] not in implemented_methods:
             result.update({'method_not_found': self._method[0]})
@@ -240,17 +237,14 @@ class netDevice(object):
         if not self._method:
             self._method = self.getMethoNotSet(method)
 
-        result = [] if len(self._method) > 1 else {}
+        result = {}
 
-        counter = 1
         if len(self._method) > 1:
-            for call in self._method:
+            for counter, call in enumerate(self._method):
                 if call not in implemented_methods:
-                    result.append({counter: {'method_not_found': [call]}})
-                    counter += 1
+                    result[counter] = {'method_not_found': [call]}
                 else:
-                    result.append({counter: getattr(self._net_device, call)()})
-                    counter += 1
+                    result[counter] = getattr(self._net_device, call)()
         else:
             result = getattr(self._net_device, self._method[0])()
 
