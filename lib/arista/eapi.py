@@ -25,7 +25,7 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
     # ---------------------------------------------------------------- 
 
     from jsonrpclib import Server
-    from pnil.lib.utils.findRoutes import standardRoutes
+    from pnil.lib.utils.FindRoutes import StandardRoutes
     import re
 
     # ----------------------------------------------------------------
@@ -296,7 +296,7 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
             else:
                 routes = self._runCMDText(['show ip route'])[0]['output']
             
-            return standardRoutes.getRoutes(routes)
+            return StandardRoutes.getRoutes(routes)
 
         def getARP(self, options=None):
             if options:

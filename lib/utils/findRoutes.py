@@ -33,10 +33,10 @@ NEXTHOP_INT_RE = re.compile(r'((?<=\d,\s)|(?<=connected,\s))((?:[\w])+(?:[\d]{1,
 # get STANDARD ROUTING INFORMATION
 # ----------------------------------------------------------------
 
-class standardRoutes(object):
+class StandardRoutes(object):
     """docstring for routingInfo"""
     def __init__(self):
-        super(standardRoutes, self).__init__()
+        super(StandardRoutes, self).__init__()
 
     @classmethod
     def getProtocols(cls, search_list):
@@ -188,7 +188,7 @@ class standardRoutes(object):
 # get NX-OS ROUTING INFORMATION
 # ----------------------------------------------------------------
 
-class NXOSRoutes(standardRoutes):
+class NXOSRoutes(StandardRoutes):
     """docstring for NXOSRoutes"""
     def __init__(self):
         super(NXOSRoutes, self).__init__()
