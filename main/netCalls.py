@@ -4,7 +4,7 @@
 
 #----------------------------------------------------------------
 
-from pnil.lib.control.netControl import NetDevice
+from pnil.lib.control.NetControl import NetDevice
 from pnil.lib.view.NetworkView import PrintResult
 
 #----------------------------------------------------------------
