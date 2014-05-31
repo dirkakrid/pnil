@@ -334,16 +334,14 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
             # n[0] is always the neighbor_id, 
                 #that's used as the key for the dict
             # the assigs the relevant data from the remaining items
-            # count = 1
             for n in neighbor_list:
-                neighbor_dict[n[0]] = {'vrf': n[1],
-                                                            'priority': n[2],
-                                                            'state': n[3],
-                                                            'dead_time': n[4],
-                                                            'address': n[5],
-                                                            'interface': n[6]
-                }
-                # count += 1
+                neighbor_dict[n[0]] = {\
+                                                'vrf': n[1],
+                                                'priority': n[2],
+                                                'state': n[3],
+                                                'dead_time': n[4],
+                                                'address': n[5],
+                                                'interface': n[6]}
 
             return neighbor_dict
 
