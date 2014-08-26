@@ -2,9 +2,9 @@
 
 
 from __future__ import print_function
-from lib.arista.eapi import AristaEapi
-from lib.cisco.onepk import onepk
-from utils.tools import initArgs
+from eapi import AristaEapi
+from onepk import onepk
+from tools import initArgs
 from itertools import izip_longest
 import sys, string, random
 import re
