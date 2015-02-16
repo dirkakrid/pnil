@@ -149,8 +149,16 @@ if sys.version_info > (2, 7, 2) and sys.version_info < (3, 0):
             return self.createDataDict('version', self._version_info['version'])
 
         # function returns a dictionary of the interfaces and their status
-        def getInterfacesStatus(self):
+        def getInterfacesStatus(self, mOptions=None):
             response = self._runCMD(['show interfaces status'])[0]['interfaceStatuses']
+
+            if mOptions:
+                for x in enumerate(response):
+                    for keys in response:
+                        for key in response[keys]:
+                            print (response[keys][key])
+            else:
+                return response
 
             return response
 
