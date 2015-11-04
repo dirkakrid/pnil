@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# Python library of tools for pnil
+
 import argparse
 
 # ----------------------------------------------------------------
