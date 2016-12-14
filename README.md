@@ -46,8 +46,6 @@ system_uptime:      4 days
 
 This code needs documentation, I know, working on it. :)
 
-Follow my [BLOG](http://ipyandy.net) for more on networking, coding and rants.
-Follow me on [Twitter @IPyandy](http://twitter.com/IPyandy) and stay in touch.
 
 To be updated soon
 
